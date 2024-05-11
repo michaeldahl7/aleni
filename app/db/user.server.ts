@@ -3,39 +3,34 @@ import { db } from "~/db/config.server";
 import { eq } from "drizzle-orm"; // Ensure db is properly initialized
 import { users } from "~/db/schema.server";
 import { InferInsertModel } from "drizzle-orm";
-export type User = InferInsertModel<typeof users>;
+export type User = typeof users.$inferInsert;
+// export type User = InferInsertModel<typeof users>;
 
 export async function getUserById(id: number) {
-  return db.select().from(users).where(eq(users.id, id)).get();
-  //   return db.query.users.findMany({
-  // 	where: eq(users.id, 1)
-  //   })
-  //   return db.table("users").findOne({ id });
+  let user = await db.query.users.findFirst({
+    where: eq(users.id, id),
+  });
+  if (!user) throw new Error(`Unable to find or create user with id: ${id}`);
+  return user;
 }
 
 export async function findOrCreateUserByEmail(email: string) {
-  console.log("reached find or create, email:", email);
   let user = await getUserByEmail(email);
-  console.log("User exists: ", user);
   if (!user) {
     user = await createUserByEmail(email);
-    console.log("User didnt exist, just created: ", user);
   }
   return user;
 }
 
 export async function getUserByEmail(email: string) {
   try {
-    // Await the asynchronous operation to complete and get the result.
-    const user = await db
-      .select()
-      .from(users)
-      .where(eq(users.email, email))
-      .get();
+    const user = await db.query.users.findFirst({
+      where: eq(users.email, email),
+    });
     return user || null;
   } catch (error) {
     console.error("Error fetching user by email:", error);
-    // Handle errors appropriately.
+
     return null;
   }
 }
@@ -43,12 +38,7 @@ export async function getUserByEmail(email: string) {
 export async function createUserByEmail(email: string) {
   try {
     const newUser: User = { email: email };
-    // Await the asynchronous insert operation to complete.
-    const insertedUsers = await db
-      .insert(users)
-      .values(newUser)
-      .returning()
-      .all();
+    const insertedUsers = await db.insert(users).values(newUser).returning();
     return insertedUsers[0];
   } catch (error) {
     console.error("Error creating user:", error);
@@ -57,7 +47,7 @@ export async function createUserByEmail(email: string) {
 }
 
 export async function deleteUserByEmail(email: string) {
-  return db.delete(users).where(eq(users.email, email));
+  return await db.delete(users).where(eq(users.email, email));
 }
 
 // export async function verifyLogin(email: User["email"], password: string) {

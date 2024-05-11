@@ -1,16 +1,28 @@
+// Example model schema from the Drizzle docs
+// https://orm.drizzle.team/docs/sql-schema-declaration
+
 import { sql } from "drizzle-orm";
-// import { text, integer, sqliteTable } from "drizzle-orm/sqlite-core";
+import {
+  index,
+  pgTableCreator,
+  serial,
+  timestamp,
+  varchar,
+} from "drizzle-orm/pg-core";
 
-import { integer, text, sqliteTableCreator } from "drizzle-orm/sqlite-core";
-const createTable = sqliteTableCreator((name) => `member_${name}`);
+export const createTable = pgTableCreator((name) => `member_${name}`);
 
-export const users = createTable("users", {
-  id: integer("id").primaryKey().notNull(), // Primary key with auto increment
-  email: text("email").notNull().unique(), // Non-null and unique email
-  createdAt: text("createdAt")
-    .notNull()
-    .default(sql`CURRENT_TIMESTAMP`), // Using text to store datetime
-  updatedAt: text("updatedAt")
-    .notNull()
-    .default(sql`CURRENT_TIMESTAMP`),
-});
+export const users = createTable(
+  "user",
+  {
+    id: serial("id").primaryKey(),
+    email: varchar("email", { length: 256 }).notNull(),
+    createdAt: timestamp("created_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp("updatedAt"),
+  },
+  (example) => ({
+    nameIndex: index("email_idx").on(example.email),
+  })
+);
