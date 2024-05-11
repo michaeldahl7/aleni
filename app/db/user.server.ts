@@ -2,9 +2,8 @@
 import { db } from "~/db/config.server";
 import { eq } from "drizzle-orm"; // Ensure db is properly initialized
 import { users } from "~/db/schema.server";
-import { InferInsertModel } from "drizzle-orm";
+
 export type User = typeof users.$inferInsert;
-// export type User = InferInsertModel<typeof users>;
 
 export async function getUserById(id: number) {
   let user = await db.query.users.findFirst({

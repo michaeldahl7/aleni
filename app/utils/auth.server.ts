@@ -1,7 +1,7 @@
 // app/server/auth.server.ts
 import { Authenticator } from "remix-auth";
 import { SocialsProvider, DiscordStrategy } from "remix-auth-socials";
-import { sessionStorage } from "~/session.server";
+import { sessionStorage } from "~/utils/session.server";
 import { findOrCreateUserByEmail } from "~/db/user.server";
 import type { User } from "~/db/user.server";
 
