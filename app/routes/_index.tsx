@@ -2,7 +2,7 @@ import type { MetaFunction } from "@remix-run/node";
 import { LoaderFunctionArgs } from "@remix-run/node";
 import { authenticator } from "~/utils/auth.server";
 
-export let loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await authenticator.isAuthenticated(request, {
     successRedirect: "/dashboard",
     failureRedirect: "/login",

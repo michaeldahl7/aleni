@@ -6,7 +6,7 @@ import { users } from "~/db/schema.server";
 export type User = typeof users.$inferInsert;
 
 export async function getUserById(id: number) {
-  let user = await db.query.users.findFirst({
+  const user = await db.query.users.findFirst({
     where: eq(users.id, id),
   });
   if (!user) throw new Error(`Unable to find or create user with id: ${id}`);
@@ -14,9 +14,12 @@ export async function getUserById(id: number) {
 }
 
 export async function findOrCreateUserByEmail(email: string) {
+  console.log("email", email)
   let user = await getUserByEmail(email);
   if (!user) {
+    console.log("user not found")
     user = await createUserByEmail(email);
+    console.log("user created", user)
   }
   return user;
 }
@@ -35,14 +38,10 @@ export async function getUserByEmail(email: string) {
 }
 
 export async function createUserByEmail(email: string) {
-  try {
     const newUser: User = { email: email };
     const insertedUsers = await db.insert(users).values(newUser).returning();
     return insertedUsers[0];
-  } catch (error) {
-    console.error("Error creating user:", error);
-    return null;
-  }
+
 }
 
 export async function deleteUserByEmail(email: string) {

@@ -2,7 +2,7 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { authenticator } from "~/utils/auth.server";
 
-export let loader = ({ request, params }: LoaderFunctionArgs) => {
+export const loader = ({ request, params }: LoaderFunctionArgs) => {
   return authenticator.authenticate(params.provider!, request, {
     successRedirect: "/dashboard",
     failureRedirect: "/login",

@@ -1,41 +1,43 @@
-import { useLoaderData, Form } from "@remix-run/react";
+import { Link, Form } from "@remix-run/react";
 import {
   LoaderFunctionArgs,
   redirect,
-  ActionFunctionArgs,
+  ActionFunctionArgs, 
+  json
 } from "@remix-run/node";
 import { authenticator } from "~/utils/auth.server";
-import { Button } from "@radix-ui/themes";
+
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const user = await authenticator.isAuthenticated(request, {
     failureRedirect: "/",
   });
 
-  return { user };
+
+  console.log("user email", user.id);
+  return json({
+    user: user
+  })
+
 };
 
-export async function action({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
+// export async function action({ request }: ActionFunctionArgs) {
 
-  return redirect("/dashboard");
-}
+//   return redirect("/dashboard");
+// }
 
 export default function Dashboard() {
-  const { user } = useLoaderData<typeof loader>();
 
   return (
-    <Form method="post">
-      <label>
-        Excercise: <input name="excercise" />
-      </label>
-      <label>
-        reps: <input name="rep" />
-      </label>
-      <label>
-        weight: <input name="weight" />
-      </label>
-      <Button>New Workout</Button>
-    </Form>
+    <div>
+      <h1>Workout Application</h1>
+      <Link to="/workouts">View Workouts</Link>
+      <br />
+      <Link to="/workouts/new">Add New Workout</Link>
+      <Link to="/workouts/example">Playground</Link>
+      <Form action="/logout" method="post">
+        <button>Logout</button>
+      </Form>
+    </div>
   );
 }

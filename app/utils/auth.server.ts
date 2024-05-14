@@ -5,7 +5,14 @@ import { sessionStorage } from "~/utils/session.server";
 import { findOrCreateUserByEmail } from "~/db/user.server";
 import type { User } from "~/db/user.server";
 
-export let authenticator = new Authenticator<User>(sessionStorage, {
+// type User = {
+//   email: string;
+//   id: number;
+//   createdAt?: Date | undefined;
+//   updatedAt?: Date | null | undefined;
+// }
+
+export const authenticator = new Authenticator<User>(sessionStorage, {
   sessionKey: "_session",
 });
 
@@ -21,11 +28,12 @@ authenticator.use(
       callbackURL: getCallback(SocialsProvider.DISCORD),
     },
     async ({ accessToken, refreshToken, profile }) => {
+      console.log("Discord Profile:", profile);
       const user = await findOrCreateUserByEmail(profile.__json.email!);
 
       return {
-        id: user?.id,
-        email: user?.email!,
+        id: user.id,
+        email: user.email,
       };
     }
   )
