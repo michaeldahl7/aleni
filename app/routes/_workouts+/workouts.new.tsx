@@ -1,150 +1,182 @@
-  import { useState } from "react";
-  import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-  import { json, redirect } from "@remix-run/node";
-  import { Form, useLoaderData } from "@remix-run/react"; // Ensure to import your database connection
-  // import { workouts, activities, sets } from "~/db/schema.server"; // Ensure to import your models
-  import Activity from "~/components/Activity";
-  import { authenticator } from "~/utils/auth.server";
-  import { createWorkout, createActivity, createSet } from "~/db/workout.server";
-  // import type { Workout } from "~/db/workout.server";
+import { useState } from "react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
+import { Form, useLoaderData, useActionData } from "@remix-run/react"; // Ensure to import your database connection
+// import { workouts, activities, sets } from "~/db/schema.server"; // Ensure to import your models
+import Activity from "~/components/Activity";
+import { authenticator } from "~/utils/auth.server";
+import { createWorkoutWithDetails } from "~/db/workout.server";
+// import type { Workout } from "~/db/workout.server";
+import { getFormProps, getInputProps, useForm } from '@conform-to/react';
+import { useForm } from "@conform-to/react";
+import { parseWithZod } from "@conform-to/zod";
+import { z } from "zod";
 
-  export const action = async ({ request }: ActionFunctionArgs) => {
-    const formData = await request.formData();
+// Define a schema for your form
+const schema = z.object({
+  title: z.string().optional(),
+  activities: z.array(
+    z.object({
+      name: z.string().min(1, "Activity name is required"),
+      sets: z.array(
+        z.object({
+          reps: z.string().min(1,"Reps are required"),
+          weight: z.string().optional(),
+        })
+      ).nonempty("At least one set is required")
+    })
+  ).nonempty("At least one activity is required")
+});
 
-    const user = await authenticator.isAuthenticated(request, {
-      failureRedirect: "/login",
-    });
 
-    const title = formData.get("title")?.toString() || "My Workout"; // Get the title or set a default
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const formData = await request.formData();
+  const submission = parseWithZod(formData, { schema });
+  console.log("submission", submission);
 
-    const activityData = [];
-    const activityNames = formData.getAll("activity-name[]");
+  if (submission.status !== 'success') {
+    return json(submission.reply());
+  }
 
-    for (let index = 0; index < activityNames.length; index++) {
-      
-      const name = activityNames[index].toString();
-      console.log("Creating activity", name);
-      formData.forEach((value, key) => {
-        console.log("Key:", key, "Value:", value)
+  const user = await authenticator.isAuthenticated(request, {
+    failureRedirect: "/login",
+  });
+
+  const title = formData.get("title")?.toString() || "My Workout";
+
+  const activityData = [];
+  const activityNames = formData.getAll("activity-name[]");
+
+  for (let index = 0; index < activityNames.length; index++) {
+    const name = activityNames[index].toString();
+    const setCount = parseInt(formData.get(`set-count-${index}`) as string, 10);
+    const sets = [];
+    for (let i = 0; i < setCount; i++) {
+      sets.push({
+        reps: parseInt(formData.get(`reps-${index}-${i}`) as string, 10),
+        weight: formData.get(`weight-${index}-${i}`) as string,
       });
-      const setCount = parseInt(formData.get(`set-count-${index}`) as string, 10);
-      console.log("Set Count:", setCount);
-      const sets = [];
-      for (let i = 0; i < setCount; i++) {
-        sets.push({
-          reps: parseInt(formData.get(`reps-${index}-${i}`) as string, 10),
-          weight: formData.get(`weight-${index}-${i}`) as string,
-        });
-        console.log("Set", i, ":", sets[i])
-      }
-      activityData.push({ name, sets });
     }
+    activityData.push({ name, sets });
+  }
 
-    console.log("Activity Data:", JSON.stringify(activityData, null, 2));
+  const workoutCreated = await createWorkoutWithDetails(user.id, title, activityData);
 
-    const date = new Date();
-    const workoutCreated = await createWorkout(user.id!, date, title);
+  // if (!workoutCreated) {
+  //   return json({ error: "Failed to create workout" }, { status: 500 });
+  // }
 
-    if (!workoutCreated) {
-      return json({ error: "Failed to create workout" }, { status: 500 });
-    }
+  return redirect("/workouts");
+};
 
-    console.log("Workout Created:", workoutCreated);
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const user = await authenticator.isAuthenticated(request, {
+    failureRedirect: "/login",
+  });
+  return json({ user });
+};
 
-    for (let activityIndex = 0; activityIndex < activityData.length; activityIndex++) {
-      console.log("Creating activity", activityIndex);
-      const activity = activityData[activityIndex];
-      console.log("Activity Data:", JSON.stringify(activity, null, 2));
+export default function NewWorkout() {
+  const lastResult = useActionData<typeof action>();
+  const [form, fields] = useForm({
+    // Sync the result of last submission
+    lastResult,
 
-      const activityCreated = await createActivity(workoutCreated.id, activity.name, activityIndex);
+    // Reuse the validation logic on the client
+    onValidate({ formData }) {
+      return parseWithZod(formData, { schema });
+    },
 
-      if (!activityCreated) {
-        return json({ error: "Failed to create activity" }, { status: 500 });
-      }
+    // Validate the form on blur event triggered
+    shouldValidate: 'onBlur',
+  });
 
-      console.log("Activity Created:", activityCreated);
+  const activityFields = fields.activities.getFieldList()
+  // const { user } = useLoaderData<typeof loader>();
+  const [activities, setActivities] = useState([{ name: "", sets: [{ reps: "", weight: "" }] }]);
 
-      for (let setIndex = 0; setIndex < activity.sets.length; setIndex++) {
-        console.log("Creating set", setIndex);
-        const set = activity.sets[setIndex];
-        console.log("Set Data:", JSON.stringify(set, null, 2));
-
-        await createSet(activityCreated.id, set.reps, set.weight, setIndex);
-      }
-    }
-
-    return redirect("/workouts");
+  const addActivity = () => {
+    setActivities([...activities, { name: "", sets: [{ reps: "", weight: "" }] }]);
   };
 
-  export const loader = async ({ request }: LoaderFunctionArgs) => {
-    const user = await authenticator.isAuthenticated(request, {
-      failureRedirect: "/login",
-    });
-    console.log("user", user.email)
-    return json({ user });
+  const addSet = (activityIndex: number) => {
+    const newActivities = [...activities];
+    newActivities[activityIndex].sets.push({ reps: "", weight: "" });
+    setActivities(newActivities);
   };
 
-  export default function NewWorkout() {
-    // const { user } = useLoaderData<typeof loader>();
-    const [activityInputs, setActivityInputs] = useState([{ name: "", sets: [{ reps: "", weight: "" }] }]);
+  const handleActivityChange = (index: number, value: string) => {
+    const newActivities = [...activities];
+    newActivities[index].name = value;
+    setActivities(newActivities);
+  };
 
-    const addActivity = () => {
-      setActivityInputs([...activityInputs, { name: "", sets: [{ reps: "", weight: "" }] }]);
-    };
+  const handleSetChange = (activityIndex: number, setIndex: number, field: string, value: string) => {
+    const newActivities = [...activities];
+    newActivities[activityIndex].sets[setIndex][field] = value;
+    setActivities(newActivities);
+  };
 
-    const addSet = (activityIndex: number) => {
-      const newActivities = [...activityInputs];
-      newActivities[activityIndex].sets.push({ reps: "", weight: "" });
-      setActivityInputs(newActivities);
-    };
-
-    const handleActivityChange = (index: number, value: string) => {
-      const newActivities = [...activityInputs];
-      newActivities[index].name = value;
-      setActivityInputs(newActivities);
-    };
-
-    const handleSetChange = (activityIndex: number, setIndex: number, field: string, value: string) => {
-      const newActivities = [...activityInputs];
-      newActivities[activityIndex].sets[setIndex][field] = value;
-      setActivityInputs(newActivities);
-    };
-
-    return (
+  return (
+    <div>
+      <h1>Add New Workout</h1>
+      <Form method="post" id={form.id} onSubmit={form.onSubmit}>
+        <div>{form.errors}</div>
       <div>
-        <h1>Add New Workout</h1>
-        <Form method="post">
-          <div>
+        <label>
+          Workout Name (optional):
+          <input type="text" name="title" placeholder="Enter workout name" />
+        </label>
+      </div>
+      <fieldset>
+        <legend>Activities</legend>
+        {activities.map((activity, activityIndex) => (
+          <div key={activityIndex}>
             <label>
-              Workout Name (optional):
-              <input type="text" name="title" placeholder="Enter workout name" />
+              Activity Name:
+              <input
+                type="text"
+                name={`activity-name[]`}
+                value={activity.name}
+                onChange={(e) => handleActivityChange(activityIndex, e.target.value)}
+                required
+              />
             </label>
-          </div>
-          <fieldset>
-            <legend>Activities</legend>
-            {activityInputs.map((activity, activityIndex) => (
-              <div key={activityIndex}>
-                <Activity
-                  activityIndex={activityIndex}
-                  name={activity.name}
-                  sets={activity.sets}
-                  addSet={addSet}
-                  handleActivityChange={handleActivityChange}
-                  handleSetChange={handleSetChange}
-                />
-                <input
-                  type="hidden"
-                  name={`set-count-${activityIndex}`}
-                  value={activity.sets.length}
-                />
+            {activity.sets.map((set, setIndex) => (
+              <div key={setIndex}>
+                <label>
+                  Reps:
+                  <input
+                    type="number"
+                    name={`reps-${activityIndex}-${setIndex}`}
+                    value={set.reps}
+                    onChange={(e) => handleSetChange(activityIndex, setIndex, "reps", e.target.value)}
+                    required
+                  />
+                </label>
+                <label>
+                  Weight (optional):
+                  <input
+                    type="number"
+                    name={`weight-${activityIndex}-${setIndex}`}
+                    value={set.weight}
+                    onChange={(e) => handleSetChange(activityIndex, setIndex, "weight", e.target.value)}
+                  />
+                </label>
               </div>
             ))}
-            <button type="button" aria-label="Add another activity" onClick={addActivity}>
-              + Add Activity
+            <button type="button" aria-label="Add another set" onClick={() => addSet(activityIndex)}>
+              + Add Set
             </button>
-          </fieldset>
-          <button type="submit">Save Workout</button>
-        </Form>
-      </div>
-    );
-  }
+            <input type="hidden" name={`set-count-${activityIndex}`} value={activity.sets.length} />
+          </div>
+        ))}
+        <button type="button" aria-label="Add another activity" onClick={addActivity}>
+          + Add Activity
+        </button>
+      </fieldset>
+      <button>Submit</button>
+    </Form>
+    </div>
+  );
+}

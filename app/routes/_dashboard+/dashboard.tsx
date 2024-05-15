@@ -34,7 +34,6 @@ export default function Dashboard() {
       <Link to="/workouts">View Workouts</Link>
       <br />
       <Link to="/workouts/new">Add New Workout</Link>
-      <Link to="/workouts/example">Playground</Link>
       <Form action="/logout" method="post">
         <button>Logout</button>
       </Form>
