@@ -65,20 +65,20 @@ const setsFields = fields.sets.getFieldList();
         //   const todoFields = set
         const setFields = set.getFieldset()
           return (
-            <li key={set.key}>
+            <div key={set.id}>
                <label>Reps</label>    
                 <input name={setFields.reps.name} defaultValue={setFields.reps.value}/>
-                <div>{setFields.reps.errors}</div>
+                <span>{setFields.reps.errors}</span>
                 <label>Weight</label> 
                 <input name={setFields.weight.name} defaultValue={setFields.reps.value}/>
-                <div>{setFields.weight.errors}</div>
-            </li>
+                <span>{setFields.weight.errors}</span>
+            </div>
           );
         })}
       </ul>
       <button
         {...form.insert.getButtonProps({
-          name: fields.todos.name,
+          name: fields.sets.name,
         })}
       >
         Add task
