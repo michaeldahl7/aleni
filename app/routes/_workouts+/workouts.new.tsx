@@ -5,36 +5,38 @@ import { Form, useLoaderData, useActionData } from "@remix-run/react"; // Ensure
 // import { workouts, activities, sets } from "~/db/schema.server"; // Ensure to import your models
 import Activity from "~/components/Activity";
 import { authenticator } from "~/utils/auth.server";
-import { createWorkoutWithDetails } from "~/db/workout.server";
+import { createWorkout } from "~/db/workout.server";
 // import type { Workout } from "~/db/workout.server";
-import { getFormProps, getInputProps, useForm } from '@conform-to/react';
-import { useForm } from "@conform-to/react";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
 import { z } from "zod";
 
 // Define a schema for your form
 const schema = z.object({
   title: z.string().optional(),
-  activities: z.array(
-    z.object({
-      name: z.string().min(1, "Activity name is required"),
-      sets: z.array(
-        z.object({
-          reps: z.string().min(1,"Reps are required"),
-          weight: z.string().optional(),
-        })
-      ).nonempty("At least one set is required")
-    })
-  ).nonempty("At least one activity is required")
+  activities: z
+    .array(
+      z.object({
+        name: z.string().min(1, "Activity name is required"),
+        sets: z
+          .array(
+            z.object({
+              reps: z.string().min(1, "Reps are required"),
+              weight: z.string().optional(),
+            })
+          )
+          .nonempty("At least one set is required"),
+      })
+    )
+    .nonempty("At least one activity is required"),
 });
-
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const submission = parseWithZod(formData, { schema });
   console.log("submission", submission);
 
-  if (submission.status !== 'success') {
+  if (submission.status !== "success") {
     return json(submission.reply());
   }
 
@@ -60,7 +62,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     activityData.push({ name, sets });
   }
 
-  const workoutCreated = await createWorkoutWithDetails(user.id, title, activityData);
+  const workoutCreated = await createWorkout(user.id, title, activityData);
 
   // if (!workoutCreated) {
   //   return json({ error: "Failed to create workout" }, { status: 500 });
@@ -88,15 +90,20 @@ export default function NewWorkout() {
     },
 
     // Validate the form on blur event triggered
-    shouldValidate: 'onBlur',
+    shouldValidate: "onBlur",
   });
 
-  const activityFields = fields.activities.getFieldList()
+  const activityFields = fields.activities.getFieldList();
   // const { user } = useLoaderData<typeof loader>();
-  const [activities, setActivities] = useState([{ name: "", sets: [{ reps: "", weight: "" }] }]);
+  const [activities, setActivities] = useState([
+    { name: "", sets: [{ reps: "", weight: "" }] },
+  ]);
 
   const addActivity = () => {
-    setActivities([...activities, { name: "", sets: [{ reps: "", weight: "" }] }]);
+    setActivities([
+      ...activities,
+      { name: "", sets: [{ reps: "", weight: "" }] },
+    ]);
   };
 
   const addSet = (activityIndex: number) => {
@@ -111,7 +118,12 @@ export default function NewWorkout() {
     setActivities(newActivities);
   };
 
-  const handleSetChange = (activityIndex: number, setIndex: number, field: string, value: string) => {
+  const handleSetChange = (
+    activityIndex: number,
+    setIndex: number,
+    field: string,
+    value: string
+  ) => {
     const newActivities = [...activities];
     newActivities[activityIndex].sets[setIndex][field] = value;
     setActivities(newActivities);
@@ -122,61 +134,89 @@ export default function NewWorkout() {
       <h1>Add New Workout</h1>
       <Form method="post" id={form.id} onSubmit={form.onSubmit}>
         <div>{form.errors}</div>
-      <div>
-        <label>
-          Workout Name (optional):
-          <input type="text" name="title" placeholder="Enter workout name" />
-        </label>
-      </div>
-      <fieldset>
-        <legend>Activities</legend>
-        {activities.map((activity, activityIndex) => (
-          <div key={activityIndex}>
-            <label>
-              Activity Name:
+        <div>
+          <label>
+            Workout Name (optional):
+            <input type="text" name="title" placeholder="Enter workout name" />
+          </label>
+        </div>
+        <fieldset>
+          <legend>Activities</legend>
+          {activities.map((activity, activityIndex) => (
+            <div key={activityIndex}>
+              <label>
+                Activity Name:
+                <input
+                  type="text"
+                  name={`activity-name[]`}
+                  value={activity.name}
+                  onChange={(e) =>
+                    handleActivityChange(activityIndex, e.target.value)
+                  }
+                  required
+                />
+              </label>
+              {activity.sets.map((set, setIndex) => (
+                <div key={setIndex}>
+                  <label>
+                    Reps:
+                    <input
+                      type="number"
+                      name={`reps-${activityIndex}-${setIndex}`}
+                      value={set.reps}
+                      onChange={(e) =>
+                        handleSetChange(
+                          activityIndex,
+                          setIndex,
+                          "reps",
+                          e.target.value
+                        )
+                      }
+                      required
+                    />
+                  </label>
+                  <label>
+                    Weight (optional):
+                    <input
+                      type="number"
+                      name={`weight-${activityIndex}-${setIndex}`}
+                      value={set.weight}
+                      onChange={(e) =>
+                        handleSetChange(
+                          activityIndex,
+                          setIndex,
+                          "weight",
+                          e.target.value
+                        )
+                      }
+                    />
+                  </label>
+                </div>
+              ))}
+              <button
+                type="button"
+                aria-label="Add another set"
+                onClick={() => addSet(activityIndex)}
+              >
+                + Add Set
+              </button>
               <input
-                type="text"
-                name={`activity-name[]`}
-                value={activity.name}
-                onChange={(e) => handleActivityChange(activityIndex, e.target.value)}
-                required
+                type="hidden"
+                name={`set-count-${activityIndex}`}
+                value={activity.sets.length}
               />
-            </label>
-            {activity.sets.map((set, setIndex) => (
-              <div key={setIndex}>
-                <label>
-                  Reps:
-                  <input
-                    type="number"
-                    name={`reps-${activityIndex}-${setIndex}`}
-                    value={set.reps}
-                    onChange={(e) => handleSetChange(activityIndex, setIndex, "reps", e.target.value)}
-                    required
-                  />
-                </label>
-                <label>
-                  Weight (optional):
-                  <input
-                    type="number"
-                    name={`weight-${activityIndex}-${setIndex}`}
-                    value={set.weight}
-                    onChange={(e) => handleSetChange(activityIndex, setIndex, "weight", e.target.value)}
-                  />
-                </label>
-              </div>
-            ))}
-            <button type="button" aria-label="Add another set" onClick={() => addSet(activityIndex)}>
-              + Add Set
-            </button>
-            <input type="hidden" name={`set-count-${activityIndex}`} value={activity.sets.length} />
-          </div>
-        ))}
-        <button type="button" aria-label="Add another activity" onClick={addActivity}>
-          + Add Activity
-        </button>
-      </fieldset>
-      <button>Submit</button>
-    </Form>
+            </div>
+          ))}
+          <button
+            type="button"
+            aria-label="Add another activity"
+            onClick={addActivity}
+          >
+            + Add Activity
+          </button>
+        </fieldset>
+        <button>Submit</button>
+      </Form>
     </div>
   );
 }

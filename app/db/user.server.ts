@@ -2,7 +2,7 @@
 import { db } from "~/db/config.server";
 import { eq } from "drizzle-orm"; // Ensure db is properly initialized
 import { users } from "~/db/schema.server";
-// import type { Users } from "~/db/schema.server";
+import type { UserInsert, UserSelect } from "~/db/schema.server";
 
 export async function getUserById(id: number) {
   const user = await db.query.users.findFirst({
@@ -12,13 +12,15 @@ export async function getUserById(id: number) {
   return user;
 }
 
-export async function findOrCreateUserByEmail(email: string) {
-  console.log("email", email)
+export async function findOrCreateUserByEmail(
+  email: string
+): Promise<UserSelect> {
+  console.log("email", email);
   let user = await getUserByEmail(email);
   if (!user) {
-    console.log("user not found")
+    console.log("user not found");
     user = await createUserByEmail(email);
-    console.log("user created", user)
+    console.log("user created", user);
   }
   return user;
 }
@@ -36,14 +38,15 @@ export async function getUserByEmail(email: string) {
   }
 }
 
-export async function createUserByEmail(email: string) {
-    // const newUser: Users = { email: email };
-    const insertedUsers = await db.insert(users).values({ email: email }).returning();
-    return insertedUsers[0];
-
+export async function createUserByEmail(email: string): Promise<UserSelect> {
+  // const newUser: Users = { email: email };
+  const insertedUsers = await db
+    .insert(users)
+    .values({ email: email })
+    .returning();
+  return insertedUsers[0];
 }
 
 export async function deleteUserByEmail(email: string) {
   return await db.delete(users).where(eq(users.email, email));
 }
-

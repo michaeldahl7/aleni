@@ -4,10 +4,13 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { z } from "zod";
+import { createWorkout } from "~/db/workout.server";
+import { authenticator } from "~/utils/auth.server";
+import type { UserSelect, WorkoutInsert } from "~/db/schema.server";
 
 // Define subschemas
 const setSchema = z.object({
-  reps: z.string({ required_error: "Please provide a number of reps" }).min(1),
+  reps: z.number({ required_error: "Please provide a number of reps" }).min(1),
   weight: z.string().optional(),
 });
 
@@ -17,7 +20,8 @@ const activitySchema = z.object({
 });
 
 const workoutSchema = z.object({
-  title: z.string().optional(),
+  userId: z.number(),
+  title: z.string({ required_error: "Please provide a workout title" }),
   activities: z.array(activitySchema),
 });
 
@@ -33,8 +37,11 @@ const createEmptyActivity = () => ({
 
 // Loader function to fetch initial data
 export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const user: UserSelect = await authenticator.isAuthenticated(request, {
+    failureRedirect: "/login",
+  });
   const activities = [createEmptyActivity()];
-  return json({ title: "Workout", activities });
+  return json({ title: "Workout", activities, user });
 };
 
 // Action function to handle form submission
@@ -46,16 +53,32 @@ export async function action({ request }: ActionFunctionArgs) {
     return json(submission.reply());
   }
 
+  const workout = await createWorkout(
+    submission.value.userId,
+    submission.value.title,
+    submission.value.activities
+  );
+
+  console.log(workout);
+
+  if (!workout) {
+    console.log("failed to create workout");
+    return submission.reply({
+      formErrors: ["Failed to create workout. Please try again later."],
+    });
+  }
+
   // Handle successful form submission here
   // ...
-  return redirect("/success"); // Example redirect after successful submission
+  return redirect("/workouts"); // Example redirect after successful submission
 }
 
 // Main form component
 export default function WorkoutForm() {
   // Last submission returned by the server
-  const { title, activities } = useLoaderData<typeof loader>();
+  const { title, activities, user } = useLoaderData<typeof loader>();
   const lastResult = useActionData<typeof action>();
+  console.log("lastResult", lastResult);
   const [form, fields] = useForm({
     // Sync the result of last submission
     lastResult,
@@ -80,7 +103,9 @@ export default function WorkoutForm() {
   return (
     <>
       <h1>Add New Workout</h1>
-      <Form method="post" id={form.id} onSubmit={form.onSubmit}>
+      <Form method="post" {...getFormProps(form)}>
+        <div>{form.errors}</div>
+        <input type="hidden" name="userId" value={user.id} />
         <label htmlFor={fields.title.name}>Workout Name</label>
         <input
           id={fields.title.name}
@@ -100,7 +125,6 @@ export default function WorkoutForm() {
                 <input
                   id={activityFields.name.name}
                   name={activityFields.name.name}
-                  defaultValue={activityFields.name.value}
                 />
                 {activityFields.name.errors && (
                   <span>{activityFields.name.errors}</span>
@@ -115,7 +139,6 @@ export default function WorkoutForm() {
                         <input
                           id={setFields.reps.name}
                           name={setFields.reps.name}
-                          defaultValue={setFields.reps.value}
                         />
                         {setFields.reps.errors && (
                           <span>{setFields.reps.errors}</span>
@@ -124,7 +147,6 @@ export default function WorkoutForm() {
                         <input
                           id={setFields.weight.name}
                           name={setFields.weight.name}
-                          defaultValue={setFields.weight.value}
                         />
                         {setFields.weight.errors && (
                           <span>{setFields.weight.errors}</span>

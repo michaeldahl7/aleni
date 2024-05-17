@@ -3,7 +3,7 @@ import { Authenticator } from "remix-auth";
 import { SocialsProvider, DiscordStrategy } from "remix-auth-socials";
 import { sessionStorage } from "~/utils/session.server";
 import { findOrCreateUserByEmail } from "~/db/user.server";
-import type { User } from "~/db/user.server";
+import type { UserSelect } from "~/db/schema.server";
 
 // type User = {
 //   email: string;
@@ -12,7 +12,7 @@ import type { User } from "~/db/user.server";
 //   updatedAt?: Date | null | undefined;
 // }
 
-export const authenticator = new Authenticator<User>(sessionStorage, {
+export const authenticator = new Authenticator<UserSelect>(sessionStorage, {
   sessionKey: "_session",
 });
 
@@ -23,18 +23,16 @@ const getCallback = (provider: SocialsProvider) => {
 authenticator.use(
   new DiscordStrategy(
     {
-      clientID: "1238220538468499516",
-      clientSecret: "BgH7nHwWup37txVDR6RjkYMf1fegiFAL",
+      clientID: process.env.DISCORD_CLIENT_ID ?? "",
+      clientSecret: process.env.DISCORD_CLIENT_SECRET ?? "",
       callbackURL: getCallback(SocialsProvider.DISCORD),
     },
     async ({ accessToken, refreshToken, profile }) => {
       console.log("Discord Profile:", profile);
       const user = await findOrCreateUserByEmail(profile.__json.email!);
 
-      return {
-        id: user.id,
-        email: user.email,
-      };
+      // Return the user object directly
+      return user;
     }
   )
 );

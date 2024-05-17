@@ -8,8 +8,8 @@ import {
   integer,
   decimal,
 } from "drizzle-orm/pg-core";
-import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
-import { z } from 'zod';
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import { z } from "zod";
 
 export const createTable = pgTableCreator((name) => `member_${name}`);
 
@@ -28,30 +28,38 @@ export const users = createTable(
   })
 );
 
-export const workouts = createTable("workout", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id")
-    .notNull()
-    .references(() => users.id),
-  date: timestamp("date").notNull(),
-  title: varchar("title", { length: 256 }),
-  createdAt: timestamp("created_at")
-    .default(sql`CURRENT_TIMESTAMP`)
-    .notNull(),
-}, (workout) => ({
-  userIdIndex: index("user_id_idx").on(workout.userId),
-}));
+export const workouts = createTable(
+  "workout",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id),
+    date: timestamp("date").notNull(),
+    title: varchar("title", { length: 256 }),
+    createdAt: timestamp("created_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  },
+  (workout) => ({
+    userIdIndex: index("user_id_idx").on(workout.userId),
+  })
+);
 
-export const activities = createTable("activity", {
-  id: serial("id").primaryKey(),
-  workoutId: integer("workout_id")
-    .notNull()
-    .references(() => workouts.id),
-  name: varchar("name", { length: 256 }).notNull(),
-  order: integer("order").notNull(),
-}, (activity) => ({
-  workoutIdIndex: index("workout_id_idx").on(activity.workoutId),
-}));
+export const activities = createTable(
+  "activity",
+  {
+    id: serial("id").primaryKey(),
+    workoutId: integer("workout_id")
+      .notNull()
+      .references(() => workouts.id),
+    name: varchar("name", { length: 256 }).notNull(),
+    order: integer("order").notNull(),
+  },
+  (activity) => ({
+    workoutIdIndex: index("workout_id_idx").on(activity.workoutId),
+  })
+);
 
 export const sets = createTable("set", {
   id: serial("id").primaryKey(),
@@ -64,19 +72,22 @@ export const sets = createTable("set", {
   order: integer("order").notNull(),
 });
 
-
 export const insertUsersSchema = createInsertSchema(users);
 export const selectUsersSchema = createSelectSchema(users);
-export type Users = z.infer<typeof selectUsersSchema>;
+export type UserInsert = z.infer<typeof insertUsersSchema>;
+export type UserSelect = z.infer<typeof selectUsersSchema>;
 
 export const insertWorkoutsSchema = createInsertSchema(workouts);
 export const selectWorkoutsSchema = createSelectSchema(workouts);
-export type Workouts = z.infer<typeof selectWorkoutsSchema>;
+export type WorkoutInsert = z.infer<typeof insertWorkoutsSchema>;
+export type WorkoutSelect = z.infer<typeof selectWorkoutsSchema>;
 
 export const insertActivitiesSchema = createInsertSchema(activities);
 export const selectActivitiesSchema = createSelectSchema(activities);
-export type Activities = z.infer<typeof selectActivitiesSchema>;
+export type ActivityInsert = z.infer<typeof insertActivitiesSchema>;
+export type ActivitySelect = z.infer<typeof selectActivitiesSchema>;
 
 export const insertSetsSchema = createInsertSchema(sets);
 export const selectSetsSchema = createSelectSchema(sets);
-export type Sets = z.infer<typeof selectSetsSchema>;
+export type SetInsert = z.infer<typeof insertSetsSchema>;
+export type SetSelect = z.infer<typeof selectSetsSchema>;
