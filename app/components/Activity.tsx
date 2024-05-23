@@ -1,48 +1,76 @@
-
+import { Box, Flex, Text, TextField, Button } from "@radix-ui/themes";
+import { getInputProps } from "@conform-to/react";
 import Set from "./Set";
 
-type ActivityProps = {
+interface ActivityProps {
+  activity: any;
+  form: any;
   activityIndex: number;
-  name: string;
-  sets: { reps: string; weight: string }[];
-  addSet: (activityIndex: number) => void;
-  handleActivityChange: (index: number, value: string) => void;
-  handleSetChange: (activityIndex: number, setIndex: number, field: string, value: string) => void;
+  removeActivity: any;
+}
+
+const Activity: React.FC<ActivityProps> = ({
+  activity,
+  form,
+  activityIndex,
+  removeActivity,
+}) => {
+  const activityFields = activity.getFieldset();
+  const setsFields = activityFields.sets.getFieldList();
+
+  return (
+    <Box key={activity.id}>
+      <Flex align="baseline" justify="between" mb="1">
+        <Text
+          as="label"
+          size="2"
+          weight="bold"
+          htmlFor={activityFields.name.name}
+        >
+          Activity
+        </Text>
+        {activityFields.name.errors && (
+          <Text size="1" color="red">
+            {activityFields.name.errors}
+          </Text>
+        )}
+      </Flex>
+      <TextField.Root
+        placeholder="Squats"
+        id={activityFields.name.name}
+        name={activityFields.name.name}
+        type="text"
+      />
+
+      <Box>
+        {setsFields.map((set, setIndex) => (
+          <Set
+            key={set.id}
+            set={set}
+            form={form}
+            activityIndex={activityIndex}
+            setIndex={setIndex}
+            removeSet={form.remove.getButtonProps({
+              name: `${form.fields.activities.name}[${activityIndex}].sets`,
+              index: setIndex,
+            })}
+          />
+        ))}
+      </Box>
+      <div>
+        <Button
+          {...form.insert.getButtonProps({
+            name: `${form.fields.activities.name}[${activityIndex}].sets`,
+          })}
+        >
+          Add set
+        </Button>
+        <Button size="1" color="red" {...removeActivity}>
+          Remove activity
+        </Button>
+      </div>
+    </Box>
+  );
 };
 
-export default function Activity({
-  activityIndex,
-  name,
-  sets,
-  addSet,
-  handleActivityChange,
-  handleSetChange
-}: ActivityProps) {
-  return (
-    <div>
-      <label>
-        Activity Name:
-        <input
-          type="text"
-          name={`activity-name[]`}
-          value={name}
-          onChange={(e) => handleActivityChange(activityIndex, e.target.value)}
-          required
-        />
-      </label>
-      {sets.map((set, setIndex) => (
-        <Set
-          key={setIndex}
-          activityIndex={activityIndex}
-          setIndex={setIndex}
-          reps={set.reps}
-          weight={set.weight}
-          handleSetChange={handleSetChange}
-        />
-      ))}
-      <button type="button" aria-label="Add another set" onClick={() => addSet(activityIndex)}>
-        + Add Set
-      </button>
-    </div>
-  );
-}
+export default Activity;

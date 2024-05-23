@@ -66,7 +66,7 @@ export const sets = createTable("set", {
   activityId: integer("activity_id")
     .notNull()
     .references(() => activities.id),
-  reps: integer("reps"),
+  reps: integer("reps").notNull(),
   duration: integer("duration"),
   weight: decimal("weight", { precision: 10, scale: 2 }),
   order: integer("order").notNull(),
@@ -91,3 +91,24 @@ export const insertSetsSchema = createInsertSchema(sets);
 export const selectSetsSchema = createSelectSchema(sets);
 export type SetInsert = z.infer<typeof insertSetsSchema>;
 export type SetSelect = z.infer<typeof selectSetsSchema>;
+
+export const validationSetSchema = insertSetsSchema.extend({
+  reps: z.number({ required_error: "Please provide a number of reps" }).min(1),
+  weight: z.string().optional(),
+});
+
+export const validationActivitySchema = insertActivitiesSchema.extend({
+  name: z.string({ required_error: "Please provide a name" }).min(1),
+  sets: z
+    .array(validationSetSchema)
+    .nonempty({ message: "Please provide at least one set" }),
+});
+
+export const validationWorkoutSchema = insertWorkoutsSchema.extend({
+  title: z.string({ required_error: "Please provide a workout title" }),
+  activities: z
+    .array(validationActivitySchema)
+    .nonempty({ message: "Please provide at least one activity" }),
+});
+
+export type workoutValidation = z.infer<typeof validationWorkoutSchema>;

@@ -1,33 +1,71 @@
-type SetProps = {
+import { Box, Flex, Text, TextField, Button } from "@radix-ui/themes";
+import { getInputProps } from "@conform-to/react";
+
+interface SetProps {
+  set: any;
+  form: any;
   activityIndex: number;
   setIndex: number;
-  reps: string;
-  weight: string;
-  handleSetChange: (activityIndex: number, setIndex: number, field: string, value: string) => void;
+  removeSet: any;
+}
+
+const Set: React.FC<SetProps> = ({
+  set,
+  form,
+  activityIndex,
+  setIndex,
+  removeSet,
+}) => {
+  const setFields = set.getFieldset();
+
+  return (
+    <Box key={set.id}>
+      <Flex align="baseline" justify="between" mb="1">
+        <Text as="label" size="2" weight="bold" htmlFor={setFields.reps.name}>
+          Reps
+        </Text>
+        {setFields.reps.errors && (
+          <Text size="1" color="red">
+            {setFields.reps.errors}
+          </Text>
+        )}
+      </Flex>
+      <TextField.Root
+        placeholder="10"
+        id={setFields.reps.name}
+        name={setFields.reps.name}
+        type="number"
+      />
+
+      <Flex align="baseline" justify="between" mb="1">
+        <Text as="label" size="2" weight="bold" htmlFor={setFields.weight.name}>
+          Weight
+        </Text>
+        {setFields.weight.errors && (
+          <Text size="1" color="red">
+            {setFields.weight.errors}
+          </Text>
+        )}
+      </Flex>
+      <TextField.Root
+        placeholder="10"
+        id={setFields.weight.name}
+        name={setFields.weight.name}
+        type="number"
+      />
+
+      <Button
+        size="1"
+        color="red"
+        {...form.remove.getButtonProps({
+          name: `${form.fields.activities.name}[${activityIndex}].sets`,
+          index: setIndex,
+        })}
+      >
+        Remove
+      </Button>
+    </Box>
+  );
 };
 
-export default function Set({ activityIndex, setIndex, reps, weight, handleSetChange }: SetProps) {
-  return (
-    <div>
-      <label>
-        Reps:
-        <input
-          type="number"
-          name={`reps-${activityIndex}-${setIndex}`}
-          value={reps}
-          onChange={(e) => handleSetChange(activityIndex, setIndex, "reps", e.target.value)}
-          required
-        />
-      </label>
-      <label>
-        Weight (optional):
-        <input
-          type="number"
-          name={`weight-${activityIndex}-${setIndex}`}
-          value={weight}
-          onChange={(e) => handleSetChange(activityIndex, setIndex, "weight", e.target.value)}
-        />
-      </label>
-    </div>
-  );
-}
+export default Set;

@@ -1,10 +1,9 @@
-import { db } from '~/db/config.server'; // Adjust the import according to your db setup
-import { sets, activities, workouts } from '~/db/schema.server'; // Adjust the import according to your schema file
-import { config } from 'dotenv';
+import { db } from "~/db/config.server"; // Adjust the import according to your db setup
+import { sets, activities, workouts } from "~/db/schema.server"; // Adjust the import according to your schema file
+import { config } from "dotenv";
 
 // Load environment variables
 config();
-
 
 async function deleteAllRecords() {
   try {
@@ -17,9 +16,9 @@ async function deleteAllRecords() {
     // Delete all records from the workouts table
     await db.delete(workouts).execute();
 
-    console.log('All records deleted successfully.');
+    console.log("All records deleted successfully.");
   } catch (error) {
-    console.error('Error deleting records:', error);
+    console.error("Error deleting records:", error);
   }
 }
 

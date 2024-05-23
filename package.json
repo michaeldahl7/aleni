@@ -12,13 +12,15 @@
     "db:gen": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio",
     "db:up": "drizzle-kit up",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "clear-db": "ts-node app/utils/clear.db.server.ts"
   },
   "dependencies": {
     "@conform-to/react": "^1.1.3",
     "@conform-to/zod": "^1.1.3",
     "@libsql/client": "^0.6.0",
-    "@radix-ui/themes": "^3.0.3",
+    "@radix-ui/react-icons": "^1.3.0",
+    "@radix-ui/themes": "^3.0.5",
     "@remix-run/node": "^2.9.1",
     "@remix-run/react": "^2.9.1",
     "@remix-run/serve": "^2.9.1",
@@ -26,6 +28,7 @@
     "@routes-gen/remix": "^0.3.7",
     "@types/node": "^20.12.12",
     "@vercel/postgres": "^0.8.0",
+    "dotenv": "^16.4.5",
     "drizzle-orm": "^0.30.10",
     "drizzle-zod": "^0.5.1",
     "isbot": "^4.1.0",
@@ -36,7 +39,6 @@
     "remix-auth": "^3.6.0",
     "remix-auth-socials": "^2.0.6",
     "tiny-invariant": "^1.3.3",
-    "ts-node": "^10.9.2",
     "zod": "^3.23.8"
   },
   "devDependencies": {
@@ -46,6 +48,7 @@
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^6.7.4",
     "@typescript-eslint/parser": "^6.7.4",
+    "autoprefixer": "^10.4.19",
     "drizzle-kit": "^0.21.1",
     "eslint": "^8.38.0",
     "eslint-import-resolver-typescript": "^3.6.1",
@@ -53,7 +56,8 @@
     "eslint-plugin-jsx-a11y": "^6.7.1",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "remix-flat-routes": "^0.6.5",
+    "postcss": "^8.4.38",
+    "ts-node": "^10.9.2",
     "tsx": "^4.10.2",
     "typescript": "^5.4.5",
     "vite": "^5.1.0",

@@ -2,9 +2,6 @@ import { createCookieSessionStorage } from "@remix-run/node";
 
 import invariant from "tiny-invariant";
 
-// import type { User } from "~/db/models/user.server";
-// import { getUserById } from "~/db/models/user.server";
-
 invariant(process.env.SESSION_SECRET, "SESSION_SECRET must be set");
 
 // export the whole sessionStorage object

@@ -3,7 +3,7 @@ import { useLoaderData, Link } from "@remix-run/react";
 import { authenticator } from "~/utils/auth.server";
 import { LoaderFunctionArgs, json } from "@remix-run/node";
 import { getWorkouts } from "~/db/workout.server";
-import { Flex, Text, Box, Heading, TextField } from "@radix-ui/themes";
+// import { Flex, Text, Box, Heading, TextField } from "@radix-ui/themes";
 
 interface Workout {
   id: number;
@@ -54,11 +54,16 @@ interface SetProps {
 }
 
 const SetComponent: React.FC<SetProps> = ({ set }) => (
-  <Flex direction="row" justify="start" gap="3">
-    <Text>Set {set.order + 1}</Text>
-    <Text>Reps: {set.reps ?? "N/A"}</Text>
-    <Text>Weight: {formatWeight(set.weight)}</Text>
-  </Flex>
+  //   <Flex direction="row" justify="start" gap="3">
+  //     <Text>Set {set.order + 1}</Text>
+  //     <Text>Reps: {set.reps ?? "N/A"}</Text>
+  //     <Text>Weight: {formatWeight(set.weight)}</Text>
+  //   </Flex>
+  <div>
+    <p>Set {set.order + 1}</p>
+    <p>Reps: {set.reps ?? "N/A"}</p>
+    <p>Weight: {formatWeight(set.weight)}</p>
+  </div>
 );
 
 interface ActivityProps {
@@ -66,14 +71,20 @@ interface ActivityProps {
 }
 
 const ActivityComponent: React.FC<ActivityProps> = ({ activity }) => (
-  <Box>
-    <Heading as="h3" mb="1">
-      Activity: {activity.name}
-    </Heading>
+  //   <Box>
+  //     <Heading as="h3" mb="1">
+  //       Activity: {activity.name}
+  //     </Heading>
+  //     {activity.sets.map((set, index) => (
+  //       <SetComponent key={index} set={set} />
+  //     ))}
+  //   </Box>
+  <div>
+    <h3>Activity: {activity.name}</h3>
     {activity.sets.map((set, index) => (
       <SetComponent key={index} set={set} />
     ))}
-  </Box>
+  </div>
 );
 
 interface WorkoutProps {
@@ -82,32 +93,27 @@ interface WorkoutProps {
 
 const WorkoutComponent: React.FC<WorkoutProps> = ({ workout }) => (
   <div>
-    <h2>Workout: {workout.title}</h2>
-    <p>Date: {new Date(workout.date).toLocaleDateString()}</p>
+    <h2>{workout.title}</h2>
+    <Link to={`/workouts/${workout.id}`}>View</Link>
+    <Link to={`/workouts/${workout.id}/edit`}>Edit</Link>
+    {/* <p>Date: {new Date(workout.date).toLocaleDateString()}</p>
     {workout.activities.map((activity) => (
       <ActivityComponent key={activity.id} activity={activity} />
-    ))}
+    ))} */}
   </div>
 );
 
 export default function Workouts() {
   const workouts = useLoaderData<typeof loader>();
-  if ("error" in workouts) {
-    return (
-      <div>
-        <h1>Workouts</h1>
-        <p>{workouts.error}</p>
-      </div>
-    );
-  }
 
   return (
     <div>
       <h1>Workouts</h1>
       <ul>
-        {workouts.map((workout: Workout) => (
-          <WorkoutComponent key={workout.id} workout={workout} />
-        ))}
+        {workouts &&
+          workouts.map((workout: Workout) => (
+            <WorkoutComponent key={workout.id} workout={workout} />
+          ))}
       </ul>
       <Link to="/workouts/new">Add New Workout</Link>
     </div>
