@@ -21,7 +21,7 @@ interface SocialButtonProps {
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await authenticator.isAuthenticated(request, {
-    successRedirect: "/member/",
+    successRedirect: "/member",
   });
   return user;
 };

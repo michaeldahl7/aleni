@@ -1,8 +1,9 @@
-import React from "react";
+// import React from "react";
 import { useLoaderData, Link } from "@remix-run/react";
 import { authenticator } from "~/utils/auth.server";
 import { LoaderFunctionArgs, json } from "@remix-run/node";
 import { getWorkouts } from "~/db/workout.server";
+import { requireUserSession } from "~/utils/require-user.server";
 // import { Flex, Text, Box, Heading, TextField } from "@radix-ui/themes";
 
 interface Workout {
@@ -26,9 +27,7 @@ interface Set {
 }
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const user = await authenticator.isAuthenticated(request, {
-    failureRedirect: "/login",
-  });
+  const user = await requireUserSession(request);
   // Get workouts of user from database
   try {
     const workouts = await getWorkouts(user.id!);

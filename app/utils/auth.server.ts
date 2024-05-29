@@ -9,19 +9,20 @@ import { sessionStorage } from "~/utils/session.server";
 import { findOrCreateUserByEmail } from "~/db/user.server";
 import type { UserSelect } from "~/db/schema.server";
 
-// type User = {
-//   email: string;
-//   id: number;
-//   createdAt?: Date | undefined;
-//   updatedAt?: Date | null | undefined;
-// }
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export const authenticator = new Authenticator<UserSelect>(sessionStorage, {
   sessionKey: "_session",
 });
 
 const getCallback = (provider: SocialsProvider) => {
-  return `http://localhost:5173/auth/${provider}/callback`;
+  if (process.env.USE_NGROK === "true") {
+    return `${process.env.NGROK_URL}/auth/${provider}/callback`;
+  } else {
+    return `http://localhost:5173/auth/${provider}/callback`;
+  }
 };
 
 authenticator.use(
@@ -50,6 +51,7 @@ authenticator.use(
     },
     async ({ profile }) => {
       // here you would find or create a user in your database
+      console.log("Google Profile:", profile);
       const user = await findOrCreateUserByEmail(profile.emails[0].value);
       return user;
     }
