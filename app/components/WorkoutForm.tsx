@@ -1,4 +1,5 @@
-import { SocialsProvider } from "remix-auth-socials";
+// components/WorkoutForm.tsx
+
 import {
   Container,
   Section,
@@ -13,23 +14,11 @@ import {
   Grid,
   Separator,
 } from "@radix-ui/themes";
-
-import { getFormProps, getInputProps, useForm } from "@conform-to/react";
-import { parseWithZod } from "@conform-to/zod";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { getFormProps, useForm } from "@conform-to/react";
 import { z } from "zod";
-import { Form, useActionData, useLoaderData } from "@remix-run/react";
-import { createWorkout } from "~/db/workout.server";
-import { authenticator } from "~/utils/auth.server";
-// import { extendedWorkoutSchema } from "~/utils/workout-form-schema.server";
-import {
-  UserSelect,
-  workoutValidation,
-  validationWorkoutSchema,
-} from "~/db/schema.server";
+import { Form, useActionData } from "@remix-run/react";
+import { parseWithZod } from "@conform-to/zod";
 
-// Define subschemas
 const setSchema = z.object({
   reps: z.number({ required_error: "Please provide a number of reps" }).min(1),
   weight: z.string().optional(),
@@ -55,59 +44,16 @@ const createEmptyActivity = () => ({
   sets: [{ reps: "", weight: "" }],
 });
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const user: UserSelect = await authenticator.isAuthenticated(request, {
-    failureRedirect: "/login",
-  });
-  const activities = [createEmptyActivity()];
-  const schema = validationWorkoutSchema;
-  return json({ title: "Workout", activities, user, schema });
-};
+export function WorkoutForm({ defaultValues, onValidate }) {
+  const lastResult = useActionData();
 
-export async function action({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-  const submission = parseWithZod(formData, {
-    schema: workoutSchema,
-  });
-
-  if (submission.status !== "success") {
-    return json(submission.reply());
-  }
-  const workout = await createWorkout(
-    submission.value.userId,
-    submission.value.title,
-    submission.value.activities
-  );
-
-  if (!workout) {
-    console.log("failed to create workout");
-    return submission.reply({
-      formErrors: ["Failed to create workout. Please try again later."],
-    });
-  }
-  return redirect("/workouts");
-}
-
-export default function Login() {
-  const { title, activities, user } = useLoaderData<typeof loader>();
-
-  const lastResult = useActionData<typeof action>();
   const [form, fields] = useForm({
     lastResult,
-    defaultValue: {
-      title,
-      activities,
-    },
-
-    onValidate({ formData }) {
-      const parseResult = parseWithZod(formData, { schema: workoutSchema });
-      //LOG THE VALIDATION RESULT client side
-      console.log("parseResult", parseResult);
-      return parseResult;
-    },
-
+    defaultValue: defaultValues,
+    onValidate,
     shouldValidate: "onSubmit",
   });
+
   const activitiesFields = fields.activities.getFieldList();
 
   return (
@@ -117,12 +63,17 @@ export default function Login() {
           <Form method="post" {...getFormProps(form)}>
             <Flex height="40px" mb="4" align="baseline" justify="center">
               <Heading as="h3" size="5" mt="-1">
-                <Text>Enter Workout</Text>
+                <Text>
+                  {defaultValues?.title ? "Edit Workout" : "Enter Workout"}
+                </Text>
               </Heading>
             </Flex>
             <Box mb="5" position="relative">
               <VisuallyHidden>
-                <TextField.Root name="userId" defaultValue={user.id} />
+                <TextField.Root
+                  name="userId"
+                  defaultValue={defaultValues?.userId}
+                />
               </VisuallyHidden>
               <Flex align="baseline" justify="between" mb="1">
                 <Text
@@ -143,7 +94,7 @@ export default function Login() {
                 placeholder="Legs, Back, Chest, etc."
                 id={fields.title.name}
                 name={fields.title.name}
-                // placeholder="Quads"
+                defaultValue={defaultValues?.title}
                 type="text"
               />
             </Box>
@@ -174,6 +125,7 @@ export default function Login() {
                       placeholder="Squats"
                       id={activityFields.name.name}
                       name={activityFields.name.name}
+                      defaultValue={activityFields.name.defaultValue}
                       type="text"
                     />
 
@@ -202,6 +154,7 @@ export default function Login() {
                                 placeholder="10"
                                 id={setFields.reps.name}
                                 name={setFields.reps.name}
+                                defaultValue={setFields.reps.defaultValue}
                                 type="number"
                               />
 
@@ -224,6 +177,7 @@ export default function Login() {
                                 placeholder="120"
                                 id={setFields.weight.name}
                                 name={setFields.weight.name}
+                                defaultValue={setFields.weight.defaultValue}
                                 type="number"
                               />
                               <Button
@@ -279,7 +233,9 @@ export default function Login() {
               Add activity
             </Button>
             <Flex align="baseline" justify="center">
-              <Button variant="soft">Create Workout</Button>
+              <Button variant="soft">
+                {defaultValues?.title ? "Update Workout" : "Create Workout"}
+              </Button>
             </Flex>
           </Form>
         </Card>

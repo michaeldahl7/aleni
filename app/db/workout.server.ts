@@ -1,16 +1,38 @@
 import { db } from "~/db/config.server";
-import { eq } from "drizzle-orm"; // Ensure db is properly initialized
+import { eq, and } from "drizzle-orm"; // Ensure db is properly initialized
 import {
   sets,
   activities,
   workouts,
   insertWorkoutsSchema,
+  workouts,
 } from "~/db/schema.server";
 import type {
   WorkoutInsert,
   SetInsert,
   ActivityInsert,
+  WorkoutSelect,
 } from "~/db/schema.server";
+
+type WorkoutInfo = {
+  title: string | null;
+  id: number;
+};
+
+export async function getWorkoutsOfUser(
+  userId: number
+): Promise<WorkoutInfo[]> {
+  try {
+    const data = await db.query.workouts.findMany({
+      columns: { title: true, id: true },
+      where: eq(workouts.userId, 8),
+    });
+    return data;
+  } catch (error) {
+    console.error("Error creating workout with details:", error);
+    return [];
+  }
+}
 
 export async function createWorkout(
   userId: number,
@@ -76,7 +98,7 @@ export async function createWorkout(
   }
 }
 
-export async function getWorkouts(userId: number) {
+export async function getWorkouts(userId: number): Promise<WorkoutSelect[]> {
   try {
     // Fetch all workouts for the given user
     const workoutsWithDetails = await db
@@ -127,5 +149,91 @@ export async function getWorkouts(userId: number) {
   } catch (error) {
     console.error("Error fetching workouts:", error);
     return [];
+  }
+}
+
+type WorkoutWithDetails = {
+  id: number;
+  title: string;
+  userId: number;
+  activities: Array<{
+    id: number;
+    name: string;
+    sets: Array<{
+      id: number;
+      reps: number;
+      weight: string;
+    }>;
+  }>;
+};
+
+export async function getWorkoutById(
+  workoutId: number,
+  userId: number
+): Promise<WorkoutWithDetails | null> {
+  try {
+    // Fetch the workout details for the given workout ID and user ID
+    const workoutDetails = await db
+      .select({
+        workoutId: workouts.id,
+        workoutTitle: workouts.title,
+        workoutUserId: workouts.userId,
+        activityId: activities.id,
+        activityName: activities.name,
+        setId: sets.id,
+        setReps: sets.reps,
+        setWeight: sets.weight,
+      })
+      .from(workouts)
+      .leftJoin(activities, eq(activities.workoutId, workouts.id))
+      .leftJoin(sets, eq(sets.activityId, activities.id))
+      .where(and(eq(workouts.id, workoutId), eq(workouts.userId, userId)));
+
+    if (workoutDetails.length === 0) {
+      return null;
+    }
+
+    // Initialize the result structure
+    const result: WorkoutWithDetails = {
+      id: workoutDetails[0].workoutId,
+      title: workoutDetails[0].workoutTitle,
+      userId: workoutDetails[0].workoutUserId,
+      activities: [],
+    };
+
+    // Map to keep track of activities and their sets
+    const activityMap = new Map<
+      number,
+      WorkoutWithDetails["activities"][number]
+    >();
+
+    workoutDetails.forEach((row) => {
+      // If the activity is not already in the map, add it
+      if (!activityMap.has(row.activityId)) {
+        const activity = {
+          id: row.activityId,
+          name: row.activityName,
+          sets: [],
+        };
+        activityMap.set(row.activityId, activity);
+        result.activities.push(activity);
+      }
+
+      const currentActivity = activityMap.get(row.activityId)!;
+
+      // Add the set to the current activity if the set exists
+      if (row.setId) {
+        currentActivity.sets.push({
+          id: row.setId,
+          reps: row.setReps,
+          weight: row.setWeight,
+        });
+      }
+    });
+
+    return result;
+  } catch (error) {
+    console.error("Error fetching workout:", error);
+    return null;
   }
 }

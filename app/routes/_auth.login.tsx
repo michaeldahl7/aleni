@@ -12,6 +12,7 @@ import {
   Heading,
 } from "@radix-ui/themes";
 import { forwardRef } from "react";
+import { unstable_defineLoader as defineLoader } from "@remix-run/node";
 
 interface SocialButtonProps {
   label: string;
@@ -19,12 +20,19 @@ interface SocialButtonProps {
   //   [key: string]: any; // Other props
 }
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = defineLoader(async ({ request }) => {
   const user = await authenticator.isAuthenticated(request, {
     successRedirect: "/member",
   });
   return user;
-};
+});
+
+// export const loader = async ({ request }: LoaderFunctionArgs) => {
+//   const user = await authenticator.isAuthenticated(request, {
+//     successRedirect: "/member",
+//   });
+//   return user;
+// };
 
 const TestButton = forwardRef<HTMLButtonElement, SocialButtonProps>(
   ({ label, provider, ...props }, ref) => (
