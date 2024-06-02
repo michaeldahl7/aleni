@@ -1,75 +1,56 @@
-import { Box, Flex, Text, TextField, Button } from "@radix-ui/themes";
-import { getInputProps } from "@conform-to/react";
-import Set from "./Set";
+// Adjust the import according to your actual Button component
+import DropDownDelete from "./DropDownDelete"; // Adjust the import according to your actual DropDownDelete component
+import { Button } from "~/components/ui/button"; // Adjust the import according to your actual Button component
+import { Field } from "~/components/Forms"; // Adjust the import according to your actual Field component
+import Set from "./Set"; // Import the Set component
 
 interface ActivityProps {
-  activity: any;
-  form: any;
-  activityIndex: number;
-  removeActivity: any;
+  activityPlaceholder?: string;
+  repsPlaceholder?: string;
+  weightPlaceholder?: string;
+  onRemoveSet: () => void;
+  onAddSet: () => void;
 }
 
-const Activity: React.FC<ActivityProps> = ({
-  activity,
-  form,
-  activityIndex,
-  removeActivity,
-}) => {
-  const activityFields = activity.getFieldset();
-  const setsFields = activityFields.sets.getFieldList();
-
+const Activity = ({
+  activityPlaceholder = "Squat",
+  repsPlaceholder = "10",
+  weightPlaceholder = "120",
+  onRemoveSet,
+  onAddSet,
+}: ActivityProps) => {
   return (
-    <Box key={activity.id}>
-      <Flex align="baseline" justify="between" mb="1">
-        <Text
-          as="label"
-          size="2"
-          weight="bold"
-          htmlFor={activityFields.name.name}
-        >
+    <div className="overflow-hidden rounded-[0.5rem] border bg-background shadow p-4">
+      <div className="flex justify-between">
+        <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
           Activity
-        </Text>
-        {activityFields.name.errors && (
-          <Text size="1" color="red">
-            {activityFields.name.errors}
-          </Text>
-        )}
-      </Flex>
-      <TextField.Root
-        placeholder="Squats"
-        id={activityFields.name.name}
-        name={activityFields.name.name}
-        type="text"
+        </h3>
+        <DropDownDelete />
+      </div>
+      <Field
+        labelProps={{
+          children: "Name",
+        }}
+        inputProps={{
+          name: "activity",
+          id: "activity",
+          placeholder: activityPlaceholder,
+        }}
+        className="grid gap-2 flex-grow"
       />
 
-      <Box>
-        {setsFields.map((set, setIndex) => (
-          <Set
-            key={set.id}
-            set={set}
-            form={form}
-            activityIndex={activityIndex}
-            setIndex={setIndex}
-            removeSet={form.remove.getButtonProps({
-              name: `${form.fields.activities.name}[${activityIndex}].sets`,
-              index: setIndex,
-            })}
-          />
-        ))}
-      </Box>
-      <div>
-        <Button
-          {...form.insert.getButtonProps({
-            name: `${form.fields.activities.name}[${activityIndex}].sets`,
-          })}
-        >
-          Add set
-        </Button>
-        <Button size="1" color="red" {...removeActivity}>
-          Remove activity
+      <Set
+        repsPlaceholder={repsPlaceholder}
+        weightPlaceholder={weightPlaceholder}
+        onRemove={onRemoveSet}
+      />
+
+      <div className="grid col-span-3 col-start-2 gap-2">
+        <Button variant="secondary" onClick={onAddSet}>
+          Add Set
         </Button>
       </div>
-    </Box>
+    </div>
   );
 };
 

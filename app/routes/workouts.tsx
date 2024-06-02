@@ -1,11 +1,8 @@
-// import React from "react";
 import { useLoaderData, Link, NavLink, Outlet } from "@remix-run/react";
-import { authenticator } from "~/utils/auth.server";
-import { LoaderFunctionArgs, json } from "@remix-run/node";
-import { getWorkouts, getWorkoutsOfUser } from "~/db/workout.server";
+import { getWorkoutsOfUser } from "~/db/workout.server";
 import { requireUserSession } from "~/utils/require-user.server";
 import { unstable_defineLoader as defineLoader } from "@remix-run/node";
-// import { Flex, Text, Box, Heading, TextField } from "@radix-ui/themes";
+import Nav from "~/components/Nav";
 
 export const loader = defineLoader(async ({ request }) => {
   const user = await requireUserSession(request);
@@ -24,26 +21,27 @@ export default function WorkoutsRoute() {
 
   return (
     <div>
+      <Nav />
+      <h1>Workouts</h1>
       <div>
-        <h1>Workouts hello</h1>
-        <ul>
-          {workouts &&
-            workouts.map((workout) => (
-              <li key={workout.id}>
-                <NavLink
-                  to={`/workouts/${workout.id}`}
-                  preventScrollReset
-                  prefetch="intent"
-                >
-                  {workout.title} - {workout.id}
-                </NavLink>
-              </li>
-            ))}
-        </ul>
+        <div>
+          <ul>
+            <Link to="/workouts/new">Add New Workout</Link>
+            {workouts &&
+              workouts.map((workout) => (
+                <li key={workout.id}>
+                  <NavLink
+                    to={`/workouts/${workout.id}`}
+                    preventScrollReset
+                    prefetch="intent"
+                  >
+                    {workout.title} - {workout.id}
+                  </NavLink>
+                </li>
+              ))}
+          </ul>
+        </div>
 
-        <Link to="/workouts/new">Add New Workout</Link>
-      </div>
-      <div>
         <Outlet />
       </div>
     </div>

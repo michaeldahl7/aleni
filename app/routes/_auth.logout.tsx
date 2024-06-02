@@ -1,6 +1,6 @@
-import type { ActionFunctionArgs } from "@remix-run/node";
 import { authenticator } from "~/utils/auth.server";
+import { unstable_defineAction as defineAction } from "@remix-run/node";
 
-export const action = async ({ request, params }: ActionFunctionArgs) => {
-  await authenticator.logout(request, { redirectTo: "/" });
-};
+export const action = defineAction(async ({ request }) => {
+  return await authenticator.logout(request, { redirectTo: "/" });
+});

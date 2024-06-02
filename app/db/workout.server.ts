@@ -36,8 +36,8 @@ export async function getWorkoutsOfUser(
 
 export async function createWorkout(
   userId: number,
-  title: string,
-  activityData: { name: string; sets: { reps: number; weight?: string }[] }[]
+  activityData: { name: string; sets: { reps: number; weight?: string }[] }[],
+  title?: string
 ) {
   try {
     const newWorkout: WorkoutInsert = {

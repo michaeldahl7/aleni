@@ -1,4 +1,3 @@
-import { SocialsProvider } from "remix-auth-socials";
 import {
   Container,
   Section,
@@ -14,21 +13,20 @@ import {
   Separator,
 } from "@radix-ui/themes";
 
-import { getFormProps, getInputProps, useForm } from "@conform-to/react";
+import { getFormProps, useForm } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
 import { z } from "zod";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { createWorkout } from "~/db/workout.server";
 import { authenticator } from "~/utils/auth.server";
-import { unstable_defineLoader as defineLoader } from "@remix-run/node";
-// import { extendedWorkoutSchema } from "~/utils/workout-form-schema.server";
 import {
-  UserSelect,
-  workoutValidation,
-  validationWorkoutSchema,
-} from "~/db/schema.server";
+  unstable_defineLoader as defineLoader,
+  unstable_defineAction as defineAction,
+  json,
+  redirect,
+} from "@remix-run/node";
+
+import { UserSelect } from "~/db/schema.server";
 
 // Define subschemas
 const setSchema = z.object({
@@ -61,11 +59,10 @@ export const loader = defineLoader(async ({ request }) => {
     failureRedirect: "/login",
   });
   const activities = [createEmptyActivity()];
-  const schema = validationWorkoutSchema;
   return { title: "Workout", activities, user };
 });
 
-export async function action({ request }: ActionFunctionArgs) {
+export const action = defineAction(async ({ request }) => {
   const formData = await request.formData();
   const submission = parseWithZod(formData, {
     schema: workoutSchema,
@@ -82,12 +79,14 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (!workout) {
     console.log("failed to create workout");
-    return submission.reply({
-      formErrors: ["Failed to create workout. Please try again later."],
-    });
+    return json(
+      submission.reply({
+        formErrors: ["Failed to create workout. Please try again later."],
+      })
+    );
   }
-  return redirect("/workouts");
-}
+  throw redirect("/workouts");
+});
 
 export default function Login() {
   const { title, activities, user } = useLoaderData<typeof loader>();

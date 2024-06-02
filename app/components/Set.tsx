@@ -1,70 +1,41 @@
-import { Box, Flex, Text, TextField, Button } from "@radix-ui/themes";
-import { getInputProps } from "@conform-to/react";
+import { Button } from "~/components/ui/button"; // Adjust the import according to your actual Button component
+import { Field } from "~/components/Forms"; // Adjust the import according to your actual Field component
 
 interface SetProps {
-  set: any;
-  form: any;
-  activityIndex: number;
-  setIndex: number;
-  removeSet: any;
+  repsPlaceholder?: string;
+  weightPlaceholder?: string;
+  onRemove: () => void;
 }
 
-const Set: React.FC<SetProps> = ({
-  set,
-  form,
-  activityIndex,
-  setIndex,
-  removeSet,
-}) => {
-  const setFields = set.getFieldset();
-
+const Set = ({
+  repsPlaceholder = "10",
+  weightPlaceholder = "120",
+  onRemove,
+}: SetProps) => {
   return (
-    <Box key={set.id}>
-      <Flex align="baseline" justify="between" mb="1">
-        <Text as="label" size="2" weight="bold" htmlFor={setFields.reps.name}>
-          Reps
-        </Text>
-        {setFields.reps.errors && (
-          <Text size="1" color="red">
-            {setFields.reps.errors}
-          </Text>
-        )}
-      </Flex>
-      <TextField.Root
-        placeholder="10"
-        id={setFields.reps.name}
-        name={setFields.reps.name}
-        type="number"
+    <div className="grid grid-cols-5 gap-4">
+      <Field
+        labelProps={{ htmlFor: "reps", children: "Reps" }}
+        inputProps={{ id: "reps", placeholder: repsPlaceholder }}
+        className="grid col-span-2 gap-2"
       />
 
-      <Flex align="baseline" justify="between" mb="1">
-        <Text as="label" size="2" weight="bold" htmlFor={setFields.weight.name}>
-          Weight
-        </Text>
-        {setFields.weight.errors && (
-          <Text size="1" color="red">
-            {setFields.weight.errors}
-          </Text>
-        )}
-      </Flex>
-      <TextField.Root
-        placeholder="10"
-        id={setFields.weight.name}
-        name={setFields.weight.name}
-        type="number"
+      <Field
+        labelProps={{ htmlFor: "weight", children: "Weight" }}
+        inputProps={{ id: "weight", placeholder: weightPlaceholder }}
+        className="grid col-span-2 gap-2"
       />
 
-      <Button
-        size="1"
-        color="red"
-        {...form.remove.getButtonProps({
-          name: `${form.fields.activities.name}[${activityIndex}].sets`,
-          index: setIndex,
-        })}
-      >
-        Remove
-      </Button>
-    </Box>
+      <div className="grid gap-2">
+        <Button
+          variant="destructive"
+          className="self-center -mt-4"
+          onClick={onRemove}
+        >
+          Remove
+        </Button>
+      </div>
+    </div>
   );
 };
 
