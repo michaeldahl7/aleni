@@ -1,36 +1,35 @@
-import {
-  Container,
-  Section,
-  Card,
-  Button,
-  Box,
-  Heading,
-  Flex,
-  Text,
-  TextField,
-  VisuallyHidden,
-  Grid,
-  Separator,
-} from "@radix-ui/themes";
-
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
+import { Separator } from "~/components/ui/separator";
 import { getFormProps, useForm } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
 import { z } from "zod";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { createWorkout } from "~/db/workout.server";
 import { authenticator } from "~/utils/auth.server";
+import { useNavigate } from "@remix-run/react";
+
 import {
   unstable_defineLoader as defineLoader,
   unstable_defineAction as defineAction,
   json,
   redirect,
 } from "@remix-run/node";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import DropDownDelete from "~/components/DropDownDelete";
 
 import { UserSelect } from "~/db/schema.server";
+import { Field } from "~/components/Forms";
 
-// Define subschemas
 const setSchema = z.object({
-  reps: z.number({ required_error: "Please provide a number of reps" }).min(1),
+  reps: z.number({ required_error: "Reps are required" }).min(1),
   weight: z.string().optional(),
 });
 
@@ -43,7 +42,8 @@ const activitySchema = z.object({
 
 const workoutSchema = z.object({
   userId: z.number(),
-  title: z.string({ required_error: "Please provide a workout title" }),
+  name: z.string().optional(),
+  //   title: z.string({ required_error: "Please provide a workout title" }),
   activities: z
     .array(activitySchema)
     .nonempty({ message: "Please provide at least one activity" }),
@@ -51,7 +51,10 @@ const workoutSchema = z.object({
 
 const createEmptyActivity = () => ({
   name: "",
-  sets: [{ reps: "", weight: "" }],
+  sets: [
+    { reps: "", weight: "" },
+    { reps: "", weight: "" },
+  ],
 });
 
 export const loader = defineLoader(async ({ request }) => {
@@ -59,7 +62,7 @@ export const loader = defineLoader(async ({ request }) => {
     failureRedirect: "/login",
   });
   const activities = [createEmptyActivity()];
-  return { title: "Workout", activities, user };
+  return { name: "Workout", activities, user };
 });
 
 export const action = defineAction(async ({ request }) => {
@@ -73,8 +76,8 @@ export const action = defineAction(async ({ request }) => {
   }
   const workout = await createWorkout(
     submission.value.userId,
-    submission.value.title,
-    submission.value.activities
+    submission.value.activities,
+    submission.value.name
   );
 
   if (!workout) {
@@ -88,14 +91,15 @@ export const action = defineAction(async ({ request }) => {
   throw redirect("/workouts");
 });
 
-export default function Login() {
-  const { title, activities, user } = useLoaderData<typeof loader>();
+export default function WorkoutForm() {
+  const navigate = useNavigate();
+  const { name, activities, user } = useLoaderData<typeof loader>();
 
   const lastResult = useActionData<typeof action>();
   const [form, fields] = useForm({
     lastResult,
     defaultValue: {
-      title,
+      name,
       activities,
     },
 
@@ -106,131 +110,93 @@ export default function Login() {
       return parseResult;
     },
 
-    shouldValidate: "onSubmit",
+    shouldValidate: "onBlur",
   });
   const activitiesFields = fields.activities.getFieldList();
-
   return (
-    <Container size="2">
-      <Section size="2">
-        <Card asChild variant="classic" size="4">
-          <Form method="post" {...getFormProps(form)}>
-            <Flex height="40px" mb="4" align="baseline" justify="center">
-              <Heading as="h3" size="5" mt="-1">
-                <Text>Enter Workout</Text>
-              </Heading>
-            </Flex>
-            <Box mb="5" position="relative">
-              <VisuallyHidden>
-                <TextField.Root name="userId" defaultValue={user.id} />
-              </VisuallyHidden>
-              <Flex align="baseline" justify="between" mb="1">
-                <Text
-                  as="label"
-                  size="2"
-                  weight="bold"
-                  htmlFor={fields.title.name}
+    <Form method="post" {...getFormProps(form)}>
+      <Input
+        type="hidden"
+        name="userId"
+        value={user.id}
+        className="visually-hidden"
+      />
+      <Card className="w-[640px] mx-auto">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-3xl">Create workout</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-2">
+          <Field
+            labelProps={{ htmlFor: "workoutName", children: "Workout Name" }}
+            inputProps={{
+              id: "workoutName",
+              placeholder: "Legs, Back, Chest, etc.",
+            }}
+            className="grid gap-2"
+          />
+          <div>
+            {activitiesFields.map((activity, activityIndex) => {
+              const activityFields = activity.getFieldset();
+              const setsFields = activityFields.sets.getFieldList();
+              return (
+                <div
+                  key={activity.key}
+                  className="overflow-hidden rounded-[0.5rem] border bg-background shadow p-4 mt-4"
                 >
-                  Title
-                </Text>
-                {fields.title.errors && (
-                  <Text size="1" color="red">
-                    {fields.title.errors}
-                  </Text>
-                )}
-              </Flex>
-              <TextField.Root
-                placeholder="Legs, Back, Chest, etc."
-                id={fields.title.name}
-                name={fields.title.name}
-                // placeholder="Quads"
-                type="text"
-              />
-            </Box>
+                  <div className="flex justify-between">
+                    <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+                      Activity
+                    </h3>
+                    <DropDownDelete />
+                  </div>
+                  <Field
+                    labelProps={{
+                      htmlFor: activityFields.name.name,
+                    }}
+                    inputProps={{
+                      name: activityFields.name.name,
+                      id: "4",
+                      placeholder: "Squat",
+                    }}
+                    errors={activityFields.name.errors}
+                    className="grid gap-2 flex-grow"
+                  />
+                  <div>
+                    {setsFields.map((set, setIndex) => {
+                      const setFields = set.getFieldset();
+                      return (
+                        <div key={set.key}>
+                          <div className="grid grid-cols-5 gap-4">
+                            <Field
+                              labelProps={{
+                                htmlFor: setFields.reps.name,
+                                children: "Reps",
+                              }}
+                              inputProps={{
+                                name: setFields.reps.name,
+                                id: setFields.reps.name,
+                                placeholder: "10",
+                              }}
+                              errors={setFields.reps.errors}
+                              className="grid col-span-2 gap-2"
+                            />
 
-            <Flex direction="column">
-              {activitiesFields.map((activity, activityIndex) => {
-                const activityFields = activity.getFieldset();
-                const setsFields = activityFields.sets.getFieldList();
-
-                return (
-                  <Card key={activity.id} mb="3">
-                    <Flex align="baseline" justify="between" mb="1">
-                      <Text
-                        as="label"
-                        size="2"
-                        weight="bold"
-                        htmlFor={activityFields.name.name}
-                      >
-                        Activity
-                      </Text>
-                      {activityFields.name.errors && (
-                        <Text size="1" color="red">
-                          {activityFields.name.errors}
-                        </Text>
-                      )}
-                    </Flex>
-                    <TextField.Root
-                      placeholder="Squats"
-                      id={activityFields.name.name}
-                      name={activityFields.name.name}
-                      type="text"
-                    />
-
-                    <Box>
-                      {setsFields.map((set, setIndex) => {
-                        const setFields = set.getFieldset();
-                        return (
-                          <Box key={set.id}>
-                            <Grid mb="3" px="4" py="2">
-                              <Flex align="baseline" justify="between" mb="1">
-                                <Text
-                                  as="label"
-                                  size="2"
-                                  weight="bold"
-                                  htmlFor={setFields.reps.name}
-                                >
-                                  Reps
-                                </Text>
-                                {setFields.reps.errors && (
-                                  <Text size="1" color="red">
-                                    {setFields.reps.errors}
-                                  </Text>
-                                )}
-                              </Flex>
-                              <TextField.Root
-                                placeholder="10"
-                                id={setFields.reps.name}
-                                name={setFields.reps.name}
-                                type="number"
-                              />
-
-                              <Flex align="baseline" justify="between" mb="1">
-                                <Text
-                                  as="label"
-                                  size="2"
-                                  weight="bold"
-                                  htmlFor={setFields.weight.name}
-                                >
-                                  Weight
-                                </Text>
-                                {setFields.weight.errors && (
-                                  <Text size="1" color="red">
-                                    {setFields.weight.errors}
-                                  </Text>
-                                )}
-                              </Flex>
-                              <TextField.Root
-                                placeholder="120"
-                                id={setFields.weight.name}
-                                name={setFields.weight.name}
-                                type="number"
-                              />
+                            <Field
+                              labelProps={{
+                                htmlFor: setFields.weight.name,
+                                children: "Weight",
+                              }}
+                              inputProps={{
+                                id: setFields.weight.name,
+                                placeholder: "120",
+                              }}
+                              errors={setFields.weight.errors}
+                              className="grid col-span-2 gap-2"
+                            />
+                            <div className="grid gap-2 ">
                               <Button
-                                size="1"
-                                color="red"
-                                variant="soft"
-                                mt="2"
+                                variant="destructive"
+                                className="self-center -mt-4"
                                 {...form.remove.getButtonProps({
                                   name: `${fields.activities.name}[${activityIndex}].sets`,
                                   index: setIndex,
@@ -238,52 +204,55 @@ export default function Login() {
                               >
                                 Remove
                               </Button>
-                              <Box my="4">
-                                <Separator size="4" />
-                              </Box>
-                            </Grid>
-                          </Box>
-                        );
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="flex justify-between ">
+                    <Button
+                      variant="secondary"
+                      {...form.insert.getButtonProps({
+                        name: `${fields.activities.name}[${activityIndex}].sets`,
                       })}
-                    </Box>
-                    <Flex align="baseline" justify="between">
-                      <Button
-                        {...form.insert.getButtonProps({
-                          name: `${fields.activities.name}[${activityIndex}].sets`,
-                        })}
-                      >
-                        Add set
-                      </Button>
-                      <Button
-                        variant="soft"
-                        color="red"
-                        {...form.remove.getButtonProps({
-                          name: fields.activities.name,
-                          index: activityIndex,
-                        })}
-                      >
-                        Remove activity
-                      </Button>
-                    </Flex>
-                  </Card>
-                );
-              })}
-            </Flex>
-
-            <Button
-              {...form.insert.getButtonProps({
-                name: fields.activities.name,
-                defaultValue: createEmptyActivity(),
-              })}
-            >
-              Add activity
-            </Button>
-            <Flex align="baseline" justify="center">
-              <Button variant="soft">Create Workout</Button>
-            </Flex>
-          </Form>
-        </Card>
-      </Section>
-    </Container>
+                    >
+                      Add Set
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      {...form.remove.getButtonProps({
+                        name: fields.activities.name,
+                        index: activityIndex,
+                      })}
+                    >
+                      Remove activity
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <Button
+            variant="secondary"
+            {...form.insert.getButtonProps({
+              name: fields.activities.name,
+              defaultValue: createEmptyActivity(),
+            })}
+          >
+            Add Activity
+          </Button>
+        </CardContent>
+        <CardFooter className="flex justify-between">
+          <Button variant="outline" type="button" onClick={() => navigate(-1)}>
+            Cancel
+          </Button>
+          <Button variant="outline" type="reset">
+            Reset
+          </Button>
+          <Button type="submit">Submit</Button>
+        </CardFooter>
+      </Card>
+    </Form>
   );
 }

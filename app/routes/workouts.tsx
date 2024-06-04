@@ -23,7 +23,7 @@ export default function WorkoutsRoute() {
     <div>
       <Nav />
       <h1>Workouts</h1>
-      <div>
+      <div className="grid grid-cols-[350px,1fr]">
         <div>
           <ul>
             <Link to="/workouts/new">Add New Workout</Link>

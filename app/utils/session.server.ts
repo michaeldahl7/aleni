@@ -16,6 +16,8 @@ export const authSessionStorage = createCookieSessionStorage({
   },
 });
 
+export const { getSession, commitSession, destroySession } = authSessionStorage;
+
 export const themeSessionStorage = createCookieSessionStorage({
   cookie: {
     name: "theme", // use any name you want here

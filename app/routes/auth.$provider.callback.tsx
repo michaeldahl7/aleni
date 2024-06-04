@@ -4,7 +4,7 @@ import { authenticator } from "~/utils/auth.server";
 
 export const loader = ({ request, params }: LoaderFunctionArgs) => {
   return authenticator.authenticate(params.provider!, request, {
-    successRedirect: "/workouts",
+    successRedirect: "/",
     failureRedirect: "/",
   });
 };

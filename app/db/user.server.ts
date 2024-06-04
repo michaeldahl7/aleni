@@ -25,6 +25,21 @@ export async function findOrCreateUserByEmail(
   return user;
 }
 
+export async function isUsernameTaken(username: string) {
+  const user = await db.query.users.findFirst({
+    where: eq(users.username, username),
+  });
+  return user ? true : false;
+}
+
+export async function getUserByUsername(username: string) {
+  const user = await db.query.users.findFirst({
+    where: eq(users.username, username),
+  });
+  if (!user) throw new Error(`Unable to find user with username: ${username}`);
+  return user;
+}
+
 export async function getUserByEmail(email: string) {
   try {
     const user = await db.query.users.findFirst({
@@ -45,6 +60,15 @@ export async function createUserByEmail(email: string): Promise<UserSelect> {
     .values({ email: email })
     .returning();
   return insertedUsers[0];
+}
+
+export async function createUsername(id: number, username: string) {
+  const user = await db.query.users.findFirst({
+    where: eq(users.id, id),
+  });
+  if (!user) throw new Error(`Unable to find user with id: ${id}`);
+  await db.update(users).set({ username }).where(eq(users.id, id));
+  return user;
 }
 
 export async function deleteUserByEmail(email: string) {
