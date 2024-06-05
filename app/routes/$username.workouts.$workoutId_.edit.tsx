@@ -22,6 +22,7 @@ import { getWorkoutById, updateWorkout } from "~/db/workout.server";
 import { validationWorkoutSchema } from "~/db/schema.server";
 import { parseWithZod } from "@conform-to/zod";
 import { useForm, getFormProps, getInputProps } from "@conform-to/react";
+import { GeneralErrorBoundary } from "~/components/ErrorBoundary";
 
 // Define the loader to fetch workout details for editing
 export const loader = defineLoader(async ({ request, params }) => {
@@ -261,5 +262,17 @@ export default function EditWorkout() {
         </Card>
       </Section>
     </Container>
+  );
+}
+
+export function ErrorBoundary() {
+  return (
+    <GeneralErrorBoundary
+      statusHandlers={{
+        404: ({ params }) => (
+          <p>No note with the id "{params.workoutId}" exists</p>
+        ),
+      }}
+    />
   );
 }

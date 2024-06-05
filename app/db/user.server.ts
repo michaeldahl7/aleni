@@ -2,7 +2,10 @@
 import { db } from "~/db/config.server";
 import { eq } from "drizzle-orm"; // Ensure db is properly initialized
 import { users } from "~/db/schema.server";
-import type { UserInsert, UserSelect } from "~/db/schema.server";
+import type { UserSelect } from "~/db/schema.server";
+import PostHogNodeClient from "~/posthog.server";
+
+// import posthog from "posthog-js";
 
 export async function getUserById(id: number) {
   const user = await db.query.users.findFirst({
@@ -20,6 +23,17 @@ export async function findOrCreateUserByEmail(
   if (!user) {
     console.log("user not found");
     user = await createUserByEmail(email);
+
+    const phClient = PostHogNodeClient();
+    phClient.capture({
+      distinctId: user.email,
+      event: "user signed up",
+    });
+
+    // posthog.capture({
+    //   distinctId: "distinct_id_of_the_user",
+    //   event: "user signed up",
+    // });
     console.log("user created", user);
   }
   return user;

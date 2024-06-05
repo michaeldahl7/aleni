@@ -1,4 +1,5 @@
-import { Link } from "@remix-run/react";
+import { Link, useLocation } from "@remix-run/react";
+import { GeneralErrorBoundary } from "~/components/ErrorBoundary";
 
 import { Button } from "~/components/ui/button";
 
@@ -6,14 +7,25 @@ export async function loader() {
   throw new Response("Not found", { status: 404 });
 }
 
-export default function NotFoundPage() {
+export function ErrorBoundary() {
+  const location = useLocation();
   return (
-    <div>
-      <h3>OOPS! Page not found.</h3>
-
-      <Button asChild>
-        <Link to="/workouts">Go home</Link>
-      </Button>
-    </div>
+    <GeneralErrorBoundary
+      statusHandlers={{
+        404: () => (
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-3">
+              <h1>We can't find this page:</h1>
+              <pre className="whitespace-pre-wrap break-all text-body-lg">
+                {location.pathname}
+              </pre>
+            </div>
+            <Button asChild>
+              <Link to="/">Back to home</Link>
+            </Button>
+          </div>
+        ),
+      }}
+    />
   );
 }

@@ -42,14 +42,20 @@ export function Field({
   const errorId = errors?.length ? `${id}-error` : undefined;
   return (
     <div className={className}>
-      <Label htmlFor={id} {...labelProps} />
+      <Label
+        htmlFor={id}
+        {...labelProps}
+        className={`${labelProps.className ?? ""} ${
+          errorId ? "text-destructive" : ""
+        }`}
+      />
       <Input
         id={id}
         aria-invalid={errorId ? true : undefined}
         aria-describedby={errorId}
         {...inputProps}
       />
-      <div className="min-h-[32px] px-4 pb-2 pt-1">
+      <div className="min-h-[32px] px-4 pb-1 pt-1">
         {errorId ? <ErrorList id={errorId} errors={errors} /> : null}
       </div>
     </div>
@@ -82,6 +88,7 @@ export function CheckboxField({
   });
   const id = buttonProps.id ?? fallbackId;
   const errorId = errors?.length ? `${id}-error` : undefined;
+  console.log("errorId", errorId);
 
   return (
     <div className={className}>

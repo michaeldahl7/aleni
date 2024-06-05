@@ -7,38 +7,22 @@ import {
   redirect,
   json,
 } from "@remix-run/node";
-import {
-  Link,
-  useLoaderData,
-  Form,
-  useActionData,
-  useFetcher,
-} from "@remix-run/react";
+import { Link, useLoaderData, Form, useActionData } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import { Dumbbell } from "lucide-react";
 import { commitSession, getSession } from "~/utils/session.server";
 import { CheckboxField, Field } from "~/components/Forms";
-import { conformZodMessage } from "@conform-to/zod";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import {
-  FormProvider,
-  getFieldsetProps,
-  getFormProps,
-  getInputProps,
-  getTextareaProps,
-  useForm,
-  type FieldMetadata,
-} from "@conform-to/react";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+  conformZodMessage,
+  getZodConstraint,
+  parseWithZod,
+} from "@conform-to/zod";
 import { z } from "zod";
-import {
-  createUsername,
-  getUserByUsername,
-  isUsernameTaken,
-} from "~/db/user.server";
-
-const usernameSchema = z.object({
-  username: z.string(),
-});
+import { createUsername, isUsernameTaken } from "~/db/user.server";
+import { useEffect } from "react";
+// eslint-disable-next-line import/no-named-as-default
+import posthog from "posthog-js";
 
 function createSchema(options?: {
   isUsernameUnique: (username: string) => Promise<boolean>;
@@ -77,7 +61,6 @@ function createSchema(options?: {
 
 export const loader = defineLoader(async ({ request }) => {
   const user = await authenticator.isAuthenticated(request);
-
   if (user && user.username) {
     throw redirect(`/${user.username}`);
   }
@@ -86,14 +69,12 @@ export const loader = defineLoader(async ({ request }) => {
 
 export const action = defineAction(async ({ request }) => {
   const user = await authenticator.isAuthenticated(request);
-  invariant(user, "User must exist");
+  invariant(user, "User not found");
 
   const formData = await request.formData();
   const submission = await parseWithZod(formData, {
     schema: createSchema({
       async isUsernameUnique(username) {
-        // Implement your logic to check if the username is unique
-        // For example, query your database to see if the username exists
         const user = await isUsernameTaken(username);
         return !user;
       },
@@ -134,8 +115,22 @@ export const meta: MetaFunction = () => {
 
 export default function IndexRoute() {
   const user = useLoaderData<typeof loader>();
+  useEffect(() => {
+    if (user) {
+      console.log("user in posthog effect", user);
+      if (
+        posthog.get_distinct_id() &&
+        posthog.get_distinct_id() !== user.email
+      ) {
+        console.log("posthog identify ran");
+        posthog.identify(user.email);
+      }
+    }
+  }, [user]);
   const lastResult = useActionData<typeof action>();
   const [form, fields] = useForm({
+    id: "login-form",
+    constraint: getZodConstraint(createSchema()),
     lastResult,
     onValidate({ formData }) {
       return parseWithZod(formData, {
@@ -161,6 +156,7 @@ export default function IndexRoute() {
           </div>
         ) : (
           <Form method="post" {...getFormProps(form)} className="grid gap-2">
+            <button type="submit" className="hidden" />
             <Field
               labelProps={{ htmlFor: fields.username.id, children: "Username" }}
               inputProps={{

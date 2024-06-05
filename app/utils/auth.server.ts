@@ -5,7 +5,7 @@ import {
   DiscordStrategy,
   GoogleStrategy,
 } from "remix-auth-socials";
-import { authSessionStorage } from "~/utils/session.server";
+import { sessionStorage } from "~/utils/session.server";
 import { findOrCreateUserByEmail } from "~/db/user.server";
 import type { UserSelect } from "~/db/schema.server";
 
@@ -13,7 +13,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-export const authenticator = new Authenticator<UserSelect>(authSessionStorage, {
+export const authenticator = new Authenticator<UserSelect>(sessionStorage, {
   sessionKey: "_session",
 });
 

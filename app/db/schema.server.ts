@@ -35,7 +35,7 @@ export const workouts = createTable(
     id: serial("id").primaryKey(),
     userId: integer("user_id")
       .notNull()
-      .references(() => users.id),
+      .references(() => users.id, { onDelete: "cascade" }),
     date: timestamp("date").notNull(),
     title: varchar("title", { length: 256 }),
     createdAt: timestamp("created_at")
@@ -53,7 +53,7 @@ export const activities = createTable(
     id: serial("id").primaryKey(),
     workoutId: integer("workout_id")
       .notNull()
-      .references(() => workouts.id),
+      .references(() => workouts.id, { onDelete: "cascade" }),
     name: varchar("name", { length: 256 }).notNull(),
     order: integer("order").notNull(),
   },
@@ -66,7 +66,7 @@ export const sets = createTable("set", {
   id: serial("id").primaryKey(),
   activityId: integer("activity_id")
     .notNull()
-    .references(() => activities.id),
+    .references(() => activities.id, { onDelete: "cascade" }),
   reps: integer("reps").notNull(),
   duration: integer("duration"),
   weight: decimal("weight", { precision: 10, scale: 2 }),

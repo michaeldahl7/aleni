@@ -6,8 +6,11 @@ import {
   ScrollRestoration,
   useLoaderData,
   useRouteError,
+  useLocation,
   Link,
 } from "@remix-run/react";
+import posthog from "posthog-js";
+import { useEffect } from "react";
 import clsx from "clsx";
 import {
   PreventFlashOnWrongTheme,
@@ -32,25 +35,33 @@ export default function AppWithProviders() {
   const data = useLoaderData<typeof loader>();
   return (
     <ThemeProvider specifiedTheme={data.theme} themeAction="/action/set-theme">
-      <App theme={data.theme} />
+      <App />
     </ThemeProvider>
   );
 }
 
-export function App({ theme }: { theme: string | null }) {
-  const [currentTheme] = useTheme();
+export function App() {
+  const data = useLoaderData<typeof loader>();
+  const [theme] = useTheme();
+  const location = useLocation();
+  useEffect(() => {
+    posthog.capture("$pageview");
+  }, [location]);
   return (
-    <html lang="en" className={clsx(currentTheme || theme)}>
+    <html lang="en" className={clsx(theme)}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
-        <PreventFlashOnWrongTheme ssrTheme={Boolean(theme)} />
+        <PreventFlashOnWrongTheme ssrTheme={Boolean(data.theme)} />
         <Links />
       </head>
 
       <body>
-        <Outlet />
+        <div className="flex h-screen flex-col justify-between">
+          <Outlet />
+        </div>
+
         <Toaster />
         <ScrollRestoration />
         <Scripts />
