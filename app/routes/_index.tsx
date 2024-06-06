@@ -62,13 +62,14 @@ function createSchema(options?: {
 export const loader = defineLoader(async ({ request }) => {
   const user = await authenticator.isAuthenticated(request);
   if (user && user.username) {
-    throw redirect(`/${user.username}`);
+    throw redirect(`/${user.username}/workouts`);
   }
   return user;
 });
 
 export const action = defineAction(async ({ request }) => {
   const user = await authenticator.isAuthenticated(request);
+
   invariant(user, "User not found");
 
   const formData = await request.formData();
@@ -85,8 +86,9 @@ export const action = defineAction(async ({ request }) => {
   if (submission.status !== "success") {
     return json(submission.reply());
   }
+  const username = submission.value.username;
 
-  const updatedUser = await createUsername(user.id, submission.value.username);
+  const updatedUser = await createUsername(user.id, username);
 
   if (!updatedUser) {
     return json(
@@ -99,10 +101,10 @@ export const action = defineAction(async ({ request }) => {
   const session = await getSession(request.headers.get("Cookie"));
   session.set(authenticator.sessionKey, {
     ...user,
-    username: submission.value.username,
+    username: username,
   });
 
-  return redirect(`/${submission.value.username}`, {
+  return redirect(`/${username}/workouts`, {
     headers: {
       "Set-Cookie": await commitSession(session),
     },
@@ -117,12 +119,10 @@ export default function IndexRoute() {
   const user = useLoaderData<typeof loader>();
   useEffect(() => {
     if (user) {
-      console.log("user in posthog effect", user);
       if (
         posthog.get_distinct_id() &&
         posthog.get_distinct_id() !== user.email
       ) {
-        console.log("posthog identify ran");
         posthog.identify(user.email);
       }
     }

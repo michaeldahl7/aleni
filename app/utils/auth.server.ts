@@ -32,7 +32,7 @@ authenticator.use(
       clientSecret: process.env.DISCORD_CLIENT_SECRET ?? "",
       callbackURL: getCallback(SocialsProvider.DISCORD),
     },
-    async ({ accessToken, refreshToken, profile }) => {
+    async ({ profile }) => {
       console.log("Discord Profile:", profile);
       const user = await findOrCreateUserByEmail(profile.__json.email!);
 

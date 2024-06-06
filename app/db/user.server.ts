@@ -7,7 +7,7 @@ import PostHogNodeClient from "~/posthog.server";
 
 // import posthog from "posthog-js";
 
-export async function getUserById(id: number) {
+export async function getUserById(id: string) {
   const user = await db.query.users.findFirst({
     where: eq(users.id, id),
   });
@@ -29,12 +29,6 @@ export async function findOrCreateUserByEmail(
       distinctId: user.email,
       event: "user signed up",
     });
-
-    // posthog.capture({
-    //   distinctId: "distinct_id_of_the_user",
-    //   event: "user signed up",
-    // });
-    console.log("user created", user);
   }
   return user;
 }
@@ -76,7 +70,7 @@ export async function createUserByEmail(email: string): Promise<UserSelect> {
   return insertedUsers[0];
 }
 
-export async function createUsername(id: number, username: string) {
+export async function createUsername(id: string, username: string) {
   const user = await db.query.users.findFirst({
     where: eq(users.id, id),
   });

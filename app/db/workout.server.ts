@@ -1,12 +1,6 @@
 import { db } from "~/db/config.server";
-import { eq, and } from "drizzle-orm"; // Ensure db is properly initialized
-import {
-  sets,
-  activities,
-  workouts,
-  insertWorkoutsSchema,
-  workouts,
-} from "~/db/schema.server";
+import { eq } from "drizzle-orm"; // Ensure db is properly initialized
+import { sets, activities, workouts } from "~/db/schema.server";
 import type {
   WorkoutInsert,
   SetInsert,
@@ -14,28 +8,80 @@ import type {
   WorkoutSelect,
 } from "~/db/schema.server";
 
-type WorkoutInfo = {
-  title: string | null;
-  id: number;
+// type WorkoutInfo = {
+//   title: string;
+//   id: string;
+// };
+export async function getWorkoutsOfUser(userId: string) {
+  return db.query.workouts.findMany({
+    columns: { title: true, id: true },
+    where: eq(workouts.userId, userId),
+    with: {
+      activities: {
+        with: {
+          sets: true,
+        },
+      },
+    },
+  });
+}
+
+export type Workout = {
+  id: string;
+  title: string;
+  activities: {
+    name: string;
+    sets: {
+      reps: number;
+      weight: string | null;
+    }[];
+  }[];
 };
 
-export async function getWorkoutsOfUser(
-  userId: number
-): Promise<WorkoutInfo[]> {
-  try {
-    const data = await db.query.workouts.findMany({
-      columns: { title: true, id: true },
-      where: eq(workouts.userId, 8),
-    });
-    return data;
-  } catch (error) {
-    console.error("Error creating workout with details:", error);
-    return [];
-  }
+export async function getWorkoutById(workoutId: string) {
+  return db.query.workouts.findFirst({
+    columns: { title: true, id: true },
+    where: eq(workouts.id, workoutId),
+    with: {
+      activities: {
+        columns: { name: true },
+        with: {
+          sets: {
+            columns: { reps: true, weight: true },
+          },
+        },
+      },
+    },
+  });
+}
+
+// export async function getWorkouts(userId: string): Promise<WorkoutSelect[]> {
+//   return await db.query.workouts.findMany({
+//     where: eq(workouts.userId, userId),
+//   });
+// }
+
+// export async function getWorkoutsOfUser(
+//   userId: string
+// ): Promise<WorkoutInfo[]> {
+//   try {
+//     const data = await db.query.workouts.findMany({
+//       columns: { title: true, id: true },
+//       where: eq(workouts.userId, userId),
+//     });
+//     return data;
+//   } catch (error) {
+//     console.error("Error creating workout with details:", error);
+//     return [];
+//   }
+// }
+
+export async function deleteWorkout(workoutId: string) {
+  return await db.delete(workouts).where(eq(workouts.id, workoutId));
 }
 
 export async function createWorkout(
-  userId: number,
+  userId: string,
   activityData: { name: string; sets: { reps: number; weight?: string }[] }[],
   title?: string
 ) {
@@ -47,7 +93,7 @@ export async function createWorkout(
     };
 
     // Start a transaction
-    await db.transaction(async (trx) => {
+    const workout = await db.transaction(async (trx) => {
       // Insert the workout
       const [insertedWorkout] = await trx
         .insert(workouts)
@@ -91,14 +137,14 @@ export async function createWorkout(
     });
 
     console.log("Workout with activities and sets created successfully.");
-    return true;
+    return workout;
   } catch (error) {
     console.error("Error creating workout with details:", error);
     return null;
   }
 }
 
-export async function getWorkouts(userId: number): Promise<WorkoutSelect[]> {
+export async function getWorkouts(userId: string): Promise<WorkoutSelect[]> {
   try {
     // Fetch all workouts for the given user
     const workoutsWithDetails = await db
@@ -153,87 +199,87 @@ export async function getWorkouts(userId: number): Promise<WorkoutSelect[]> {
 }
 
 type WorkoutWithDetails = {
-  id: number;
+  id: string;
   title: string;
-  userId: number;
+  userId: string;
   activities: Array<{
-    id: number;
+    id: string;
     name: string;
     sets: Array<{
-      id: number;
+      id: string;
       reps: number;
       weight: string;
     }>;
   }>;
 };
 
-export async function getWorkoutById(
-  workoutId: number,
-  userId: number
-): Promise<WorkoutWithDetails | null> {
-  try {
-    // Fetch the workout details for the given workout ID and user ID
-    const workoutDetails = await db
-      .select({
-        workoutId: workouts.id,
-        workoutTitle: workouts.title,
-        workoutUserId: workouts.userId,
-        activityId: activities.id,
-        activityName: activities.name,
-        setId: sets.id,
-        setReps: sets.reps,
-        setWeight: sets.weight,
-      })
-      .from(workouts)
-      .leftJoin(activities, eq(activities.workoutId, workouts.id))
-      .leftJoin(sets, eq(sets.activityId, activities.id))
-      .where(and(eq(workouts.id, workoutId), eq(workouts.userId, userId)));
+// export async function getWorkoutById(
+//   workoutId: string,
+//   userId: string
+// ): Promise<WorkoutWithDetails | null> {
+//   try {
+//     // Fetch the workout details for the given workout ID and user ID
+//     const workoutDetails = await db
+//       .select({
+//         workoutId: workouts.id,
+//         workoutTitle: workouts.title,
+//         workoutUserId: workouts.userId,
+//         activityId: activities.id,
+//         activityName: activities.name,
+//         setId: sets.id,
+//         setReps: sets.reps,
+//         setWeight: sets.weight,
+//       })
+//       .from(workouts)
+//       .leftJoin(activities, eq(activities.workoutId, workouts.id))
+//       .leftJoin(sets, eq(sets.activityId, activities.id))
+//       .where(and(eq(workouts.id, workoutId), eq(workouts.userId, userId)));
 
-    if (workoutDetails.length === 0) {
-      return null;
-    }
+//     if (workoutDetails.length === 0) {
+//       return null;
+//     }
 
-    // Initialize the result structure
-    const result: WorkoutWithDetails = {
-      id: workoutDetails[0].workoutId,
-      title: workoutDetails[0].workoutTitle,
-      userId: workoutDetails[0].workoutUserId,
-      activities: [],
-    };
+//     // Initialize the result structure
+//     const result: WorkoutWithDetails = {
+//       id: workoutDetails[0].workoutId,
+//       title: workoutDetails[0].workoutTitle,
+//       userId: workoutDetails[0].workoutUserId,
+//       activities: [],
+//     };
 
-    // Map to keep track of activities and their sets
-    const activityMap = new Map<
-      number,
-      WorkoutWithDetails["activities"][number]
-    >();
+//     // Map to keep track of activities and their sets
+//     const activityMap = new Map<
+//       number,
+//       WorkoutWithDetails["activities"][number]
+//     >();
 
-    workoutDetails.forEach((row) => {
-      // If the activity is not already in the map, add it
-      if (!activityMap.has(row.activityId)) {
-        const activity = {
-          id: row.activityId,
-          name: row.activityName,
-          sets: [],
-        };
-        activityMap.set(row.activityId, activity);
-        result.activities.push(activity);
-      }
+//     workoutDetails.forEach((row) => {
+//       // If the activity is not already in the map, add it
+//       if (!activityMap.has(row.activityId)) {
+//         const activity = {
+//           id: row.activityId,
+//           name: row.activityName,
+//           sets: [],
+//         };
+//         activityMap.set(row.activityId, activity);
+//         result.activities.push(activity);
+//       }
 
-      const currentActivity = activityMap.get(row.activityId)!;
+//       const currentActivity = activityMap.get(row.activityId)!;
 
-      // Add the set to the current activity if the set exists
-      if (row.setId) {
-        currentActivity.sets.push({
-          id: row.setId,
-          reps: row.setReps,
-          weight: row.setWeight,
-        });
-      }
-    });
+//       // Add the set to the current activity if the set exists
+//       if (row.setId) {
+//         currentActivity.sets.push({
+//           id: row.setId,
+//           reps: row.setReps,
+//           weight: row.setWeight,
+//         });
+//       }
+//     });
 
-    return result;
-  } catch (error) {
-    console.error("Error fetching workout:", error);
-    return null;
-  }
-}
+//     return result;
+//   } catch (error) {
+//     console.error("Error fetching workout:", error);
+//     return null;
+//   }
+// }
