@@ -144,7 +144,7 @@ export default function IndexRoute() {
     <div className="flex items-center flex-col justify-center h-screen">
       <div className="w-80 h-[20rem] flex flex-col items-center">
         <Dumbbell size={48} strokeWidth={1} className="mb-4" />
-        <div className="font-semibold text-2xl mb-9">Welcome to Member</div>
+        <div className="font-semibold text-2xl mb-9">Welcome to Aleni</div>
         {!user ? (
           <div className="flex flex-col items-center w-full gap-3 text-sm">
             <Button className="w-2/4" asChild>

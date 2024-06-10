@@ -124,7 +124,7 @@ export function WorkoutEditor({
   });
   const activitiesFields = fields.activities.getFieldList();
   return (
-    <div className="absolute inset-0">
+    <div className="absolute flex flex-col inset-0">
       <Form
         method="post"
         {...getFormProps(form)}
