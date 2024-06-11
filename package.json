@@ -10,7 +10,7 @@
     "start": "remix-serve ./build/server/index.js",
     "db:push": "drizzle-kit push",
     "db:gen": "drizzle-kit generate",
-    "db:studio": "drizzle-kit studio",
+    "db:studio": "drizzle-kit studio --host 0.0.0.0",
     "db:up": "drizzle-kit up",
     "typecheck": "tsc",
     "clear-db": "ts-node app/utils/clear.db.server.ts",
