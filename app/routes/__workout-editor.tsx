@@ -8,7 +8,6 @@ import { z } from "zod";
 import {
   Form,
   useActionData,
-  useLoaderData,
   useNavigate,
 } from "@remix-run/react";
 
@@ -28,7 +27,7 @@ import { GeneralErrorBoundary } from "~/components/ErrorBoundary";
 
 import { Workout } from "~/db/workout.server";
 
-import { type action } from "./__workout-editor.server";
+import { type action } from "~/utils/__workout-editor.server";
 
 const setSchema = z.object({
   reps: z.number({ required_error: "Reps are required" }).min(1),
@@ -115,7 +114,7 @@ export function WorkoutEditor({
 
     onValidate({ formData }) {
       const parseResult = parseWithZod(formData, { schema: workoutSchema });
-      //LOG THE VALIDATION RESULT client side
+     
       console.log("parseResult", parseResult);
       return parseResult;
     },
@@ -304,7 +303,7 @@ export function ErrorBoundary() {
     <GeneralErrorBoundary
       statusHandlers={{
         404: ({ params }) => (
-          <p>No workout with the id "{params.workoutId}" exists</p>
+          <p>No workout with the id {params.workoutId} exists</p>
         ),
       }}
     />
