@@ -4,8 +4,9 @@ export default defineConfig({
   dialect: "postgresql", // Setting the dialect to "sqlite"
   schema: "./app/db/schema.server.ts",
   out: "./drizzle",
+  verbose: true,
   dbCredentials: {
-    url: process.env.POSTGRES_URL || "", // Path to the SQLite database file
+    url: process.env.DATABASE_URL || "",
   },
-  tablesFilter: ["member_*"],
+  tablesFilter: ["aleni_*"],
 });

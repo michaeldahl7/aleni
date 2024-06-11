@@ -1,4 +1,3 @@
-import { relations, sql } from "drizzle-orm";
 import {
   index,
   pgTableCreator,
@@ -7,7 +6,9 @@ import {
   integer,
   decimal,
   text,
+  PgArray,
 } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { createId } from "@paralleldrive/cuid2";
@@ -19,17 +20,15 @@ function formatDate(date: Date): string {
   return `${day}/${month}/${year}`;
 }
 
-export const createTable = pgTableCreator((name) => `member_${name}`);
+export const createTable = pgTableCreator((name) => `aleni_${name}`);
 
 export const users = createTable(
-  "user",
+  "users",
   {
     id: text("id").primaryKey().$defaultFn(createId),
     email: varchar("email", { length: 256 }).notNull(),
     username: varchar("username", { length: 18 }).unique(),
-    createdAt: timestamp("created_at")
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at"),
   },
   (example) => ({
@@ -57,9 +56,7 @@ export const workouts = createTable(
         const formattedDate = formatDate(currentDate);
         return `${formattedDate} Workout`;
       }),
-    createdAt: timestamp("created_at")
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (workout) => ({
     userIdIndex: index("user_id_idx").on(workout.userId),

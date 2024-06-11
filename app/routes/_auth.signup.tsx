@@ -14,7 +14,7 @@ export const loader = defineLoader(async ({ request }) => {
 export default function LoginRoute() {
   return (
     <>
-      <Login title="Sign up to Member" />
+      <Login title="Sign up to Aleni" />
     </>
   );
 }
