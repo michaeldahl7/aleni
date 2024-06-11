@@ -18,11 +18,7 @@ export const authenticator = new Authenticator<UserSelect>(sessionStorage, {
 });
 
 const getCallback = (provider: SocialsProvider) => {
-  if (process.env.USE_NGROK === "true") {
-    return `${process.env.NGROK_URL}/auth/${provider}/callback`;
-  } else {
-    return `http://${process.env.HOSTNAME}/auth/${provider}/callback`;
-  }
+    return `http://${process.env.URL}/auth/${provider}/callback`;
 };
 
 authenticator.use(
