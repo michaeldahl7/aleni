@@ -97,4 +97,4 @@ COPY --from=prod-deps --chown=remix:remix /app/node_modules ./node_modules
 COPY --from=builder --chown=remix:remix /app/build/server ./build/server
 COPY --from=builder --chown=remix:remix /app/build/client ./build/client
 
-ENTRYPOINT [ "pnpm", "run", "start"]
+ENTRYPOINT [ "pnpm", "exec", "remix-serve", "./build/server/index.js" ]
