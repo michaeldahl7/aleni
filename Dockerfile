@@ -44,8 +44,8 @@ RUN mkdir /app
 WORKDIR /app
 
 COPY --from=production-deps /app/node_modules /app/node_modules
-COPY --from=build /app/build /app/build
-COPY --from=build /app/public /app/public
+COPY --from=build /app/build/server /app/build/server
+COPY --from=build /app/build/client /app/build/client
 
 # Copy only necessary files for runtime
 COPY --chown=node:node package.json ./
@@ -54,4 +54,4 @@ COPY --chown=node:node package.json ./
 RUN addgroup -S remix && adduser -S remix -G remix
 USER remix
 
-ENTRYPOINT ["pnpm", "run", "start"]
+ENTRYPOINT ["node", "node_modules/.bin/remix-serve", "./build/server/index.js"]
