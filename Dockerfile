@@ -64,30 +64,30 @@ FROM node:20.2.0-alpine3.18 as base
 
 ENV NODE_ENV production
 
-RUN npm install -g pnpm
+# RUN npm install -g pnpm
 
 FROM base as deps
 
 WORKDIR /app
-COPY package*.json pnpm-lock.yaml ./
-RUN pnpm install
+COPY package*.json  ./
+RUN npm install
 
 FROM deps AS builder
 
 WORKDIR /app
 COPY . .
-RUN pnpm run build
+RUN npm run build
 
 FROM deps AS prod-deps
 WORKDIR /app
-RUN pnpm install --production
+RUN npm install --production
 
 FROM base as runner
 
 WORKDIR /app
 
 
-COPY --from=prod-deps /app/pnpm-lock.yaml ./
+# COPY --from=prod-deps /app/pnpm-lock.yaml ./
 COPY --from=prod-deps  /app/package*.json ./
 COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=builder  /app/build/server ./build/server
