@@ -60,37 +60,83 @@
 
 
 
-FROM node:20.2.0-alpine3.18 as base
+# FROM node:20.2.0-alpine3.18 as base
 
+# ENV NODE_ENV production
+
+# # RUN npm install -g pnpm
+
+# FROM base as deps
+
+# WORKDIR /app
+# COPY package*.json  ./
+# RUN npm install
+
+# FROM deps AS builder
+
+# WORKDIR /app
+# COPY . .
+# RUN npm run build
+
+# FROM deps AS prod-deps
+# WORKDIR /app
+# RUN npm install --production
+
+# FROM base as runner
+
+# WORKDIR /app
+
+
+# # COPY --from=prod-deps /app/pnpm-lock.yaml ./
+# COPY --from=prod-deps  /app/package*.json ./
+# COPY --from=prod-deps /app/node_modules ./node_modules
+# COPY --from=builder  /app/build/server ./build/server
+# COPY --from=builder  /app/build/client ./build/client
+
+# ENTRYPOINT [ "node", "node_modules/.bin/remix-serve", "build/server/index.js" ]
+
+
+# base node image
+FROM node:20-bookworm-slim as base
+
+# set for base and all layer that inherit from it
 ENV NODE_ENV production
 
-# RUN npm install -g pnpm
-
+# Install all node_modules, including dev dependencies
 FROM base as deps
 
 WORKDIR /app
-COPY package*.json  ./
-RUN npm install
 
-FROM deps AS builder
+ADD package.json package-lock.json ./
+RUN npm install --include=dev
+
+# Setup production node_modules
+FROM base as production-deps
 
 WORKDIR /app
-COPY . .
+
+COPY --from=deps /app/node_modules /app/node_modules
+ADD package.json package-lock.json ./
+RUN npm prune --omit=dev
+
+# Build the app
+FROM base as build
+
+WORKDIR /app
+
+COPY --from=deps /app/node_modules /app/node_modules
+
+ADD . .
 RUN npm run build
 
-FROM deps AS prod-deps
-WORKDIR /app
-RUN npm install --production
-
-FROM base as runner
+# Finally, build the production image with minimal footprint
+FROM base
 
 WORKDIR /app
 
+# You only need these for production
+COPY --from=production-deps /app/node_modules /app/node_modules
+COPY --from=build /app/build /app/build
+COPY --from=build /app/package.json /app/package.json
 
-# COPY --from=prod-deps /app/pnpm-lock.yaml ./
-COPY --from=prod-deps  /app/package*.json ./
-COPY --from=prod-deps /app/node_modules ./node_modules
-COPY --from=builder  /app/build/server ./build/server
-COPY --from=builder  /app/build/client ./build/client
-
-ENTRYPOINT [ "node", "node_modules/.bin/remix-serve", "build/server/index.js" ]
+CMD [ "npm", "run", "start" ]
