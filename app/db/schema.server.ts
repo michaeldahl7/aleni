@@ -23,7 +23,7 @@ function formatDate(date: Date): string {
 export const createTable = pgTableCreator((name) => `aleni_${name}`);
 
 export const users = createTable(
-  "users",
+  "user",
   {
     id: text("id").primaryKey().$defaultFn(createId),
     email: varchar("email", { length: 256 }).notNull(),

@@ -18,7 +18,7 @@ export const authenticator = new Authenticator<UserSelect>(sessionStorage, {
 });
 
 const getCallback = (provider: SocialsProvider) => {
-    return `http://${process.env.URL}/auth/${provider}/callback`;
+  return `http://${process.env.URL}/auth/${provider}/callback`;
 };
 
 authenticator.use(
@@ -29,7 +29,6 @@ authenticator.use(
       callbackURL: getCallback(SocialsProvider.DISCORD),
     },
     async ({ profile }) => {
-      console.log("Discord Profile:", profile);
       const user = await findOrCreateUserByEmail(profile.__json.email!);
 
       // Return the user object directly
@@ -47,7 +46,7 @@ authenticator.use(
     },
     async ({ profile }) => {
       // here you would find or create a user in your database
-      console.log("Google Profile:", profile);
+
       const user = await findOrCreateUserByEmail(profile.emails[0].value);
       return user;
     }
