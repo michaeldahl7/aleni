@@ -93,4 +93,4 @@ COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=builder  /app/build/server ./build/server
 COPY --from=builder  /app/build/client ./build/client
 
-ENTRYPOINT [ "node", "node_modules/.bin/remix-serve", "./build/server/index.js" ]
+ENTRYPOINT [ "node", "node_modules/.bin/remix-serve", "build/server/index.js" ]
