@@ -70,7 +70,7 @@ FROM base as deps
 
 WORKDIR /app
 COPY package*.json pnpm-lock.yaml ./
-RUN pnpm install --production=false
+RUN pnpm install
 
 FROM deps AS builder
 
@@ -86,15 +86,11 @@ FROM base as runner
 
 WORKDIR /app
 
-RUN addgroup --system --gid 1001 remix
-RUN adduser --system --uid 1001 remix
 
-USER remix
+COPY --from=prod-deps /app/pnpm-lock.yaml ./
+COPY --from=prod-deps  /app/package*.json ./
+COPY --from=prod-deps /app/node_modules ./node_modules
+COPY --from=builder  /app/build/server ./build/server
+COPY --from=builder  /app/build/client ./build/client
 
-COPY --from=prod-deps --chown=remix:remix /app/pnpm-lock.yaml ./
-COPY --from=prod-deps --chown=remix:remix /app/package*.json ./
-COPY --from=prod-deps --chown=remix:remix /app/node_modules ./node_modules
-COPY --from=builder --chown=remix:remix /app/build/server ./build/server
-COPY --from=builder --chown=remix:remix /app/build/client ./build/client
-
-ENTRYPOINT [ "pnpm", "exec", "remix-serve", "./build/server/index.js" ]
+ENTRYPOINT [ "node", "node_modules/.bin/remix-serve", "./build/server/index.js" ]
