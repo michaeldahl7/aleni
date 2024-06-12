@@ -54,4 +54,4 @@ COPY --chown=node:node package.json ./
 RUN addgroup -S remix && adduser -S remix -G remix
 USER remix
 
-ENTRYPOINT ["pnpm", "exec", "remix-serve", "build"]
+ENTRYPOINT ["node", "node_modules/.bin/remix-serve", "build/index.js"]
