@@ -1,5 +1,5 @@
 # base node image
-FROM node:alpine:3.20 as base
+FROM node:20.2.0-alpine3.18 as base
 
 
 ENV NODE_ENV production
