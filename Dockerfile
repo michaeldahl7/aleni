@@ -106,4 +106,4 @@ COPY --from=production-deps /app/node_modules /app/node_modules
 COPY --from=build /app/build /app/build
 COPY --from=build /app/package.json /app/package.json
 
-CMD [ "npm", "run", "start" ]
+CMD [ "pnpm", "exec", "remix", "serve", "./build/server/index.js" ]
