@@ -60,55 +60,22 @@
 
 
 
-# FROM node:20.2.0-alpine3.18 as base
-
-# ENV NODE_ENV production
-
-# # RUN npm install -g pnpm
-
-# FROM base as deps
-
-# WORKDIR /app
-# COPY package*.json  ./
-# RUN npm install
-
-# FROM deps AS builder
-
-# WORKDIR /app
-# COPY . .
-# RUN npm run build
-
-# FROM deps AS prod-deps
-# WORKDIR /app
-# RUN npm install --production
-
-# FROM base as runner
-
-# WORKDIR /app
-
-
-# # COPY --from=prod-deps /app/pnpm-lock.yaml ./
-# COPY --from=prod-deps  /app/package*.json ./
-# COPY --from=prod-deps /app/node_modules ./node_modules
-# COPY --from=builder  /app/build/server ./build/server
-# COPY --from=builder  /app/build/client ./build/client
-
-# ENTRYPOINT [ "node", "node_modules/.bin/remix-serve", "build/server/index.js" ]
-
 
 # base node image
 FROM node:20-alpine3.20 as base
 
 # set for base and all layer that inherit from it
 ENV NODE_ENV production
+# # Install pnpm globally in the base image
+RUN npm install -g pnpm
 
 # Install all node_modules, including dev dependencies
 FROM base as deps
 
 WORKDIR /app
 
-ADD package.json package-lock.json ./
-RUN npm install --include=dev
+ADD package.json pnpm-lock.yaml ./
+RUN pnpm install --include=dev
 
 # Setup production node_modules
 FROM base as production-deps
@@ -116,8 +83,8 @@ FROM base as production-deps
 WORKDIR /app
 
 COPY --from=deps /app/node_modules /app/node_modules
-ADD package.json package-lock.json ./
-RUN npm prune --omit=dev
+ADD package.json pnpm-lock.yaml ./
+RUN pnpm prune --omit=dev
 
 # Build the app
 FROM base as build
@@ -127,7 +94,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules /app/node_modules
 
 ADD . .
-RUN npm run build
+RUN pnpm run build
 
 # Finally, build the production image with minimal footprint
 FROM base
