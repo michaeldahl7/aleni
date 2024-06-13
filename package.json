@@ -8,7 +8,7 @@
     "build": "pnpm run db:gen && pnpm run db:gen && pnpm run build:app && pnpm prune --production",
     "build:app": "remix vite:build",
     "dev": "remix vite:dev",
-    "start": "pnpm run db:migrate && pnpm exec remix-serve ./build/server/index.js",
+    "start": "pnpm exec remix-serve ./build/server/index.js",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "db:push": "drizzle-kit push",
     "db:gen": "drizzle-kit generate",
