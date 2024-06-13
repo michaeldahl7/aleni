@@ -22,8 +22,7 @@ export const loader = defineLoader(async ({ request }) => {
 
 export default function WorkoutsRoute() {
   const { workouts } = useLoaderData<typeof loader>();
-  console.log("workouts", workouts);
-
+  
   return (
     <main className="container flex h-full min-h-[400px] px-0 pb-12 md:px-8">
       <div className="grid w-full grid-cols-4 bg-accent pl-2 md:container md:rounded-3xl md:pr-0">
