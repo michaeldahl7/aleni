@@ -4,9 +4,10 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "build": "remix vite:build",
+    "build": "pnpm exec drizzle-kit generate && pnpm run build:app && pnpm prune --omit=dev",
+    "build:app": "remix vite:build",
     "dev": "remix vite:dev",
-    "start": "remix-serve ./build/server/index.js",
+    "start": "pnpm exec drizzle-kit migrate && pnpm exec remix-serve ./build/server/index.js",
     "db:push": "drizzle-kit push",
     "db:gen": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
