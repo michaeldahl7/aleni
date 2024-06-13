@@ -5,7 +5,7 @@
   "type": "module",
   "packageManager": "pnpm@9.1.1",
   "scripts": {
-    "build": "pnpm run db:gen && pnpm run build:app && pnpm prune --production",
+    "build": "pnpm run db:gen && pnpm run db:gen && pnpm run build:app && pnpm prune --production",
     "build:app": "remix vite:build",
     "dev": "remix vite:dev",
     "start": "pnpm run db:migrate && pnpm exec remix-serve ./build/server/index.js",
