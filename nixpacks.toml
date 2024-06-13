@@ -1,0 +1,21 @@
+[phases.setup]
+nixPkgs = ["nodejs-20_x", "pnpm", "sh"]
+
+[phases.install]
+cmds = [
+  "pnpm install --include=dev"
+]
+
+[phases.build]
+cmds = [
+  "pnpm exec drizzle-kit generate",
+  "pnpm run build"
+]
+
+[phases.prune]
+cmds = [
+  "pnpm prune --omit=dev"
+]
+
+[phases.start]
+cmd = "sh -c 'pnpm exec drizzle-kit migrate && pnpm exec remix-serve ./build/server/index.js'"
