@@ -31,7 +31,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules /app/node_modules
 
 ADD . .
-RUN pnpm run build
+RUN pnpm exec drizzle-kit generate && pnpm run build
 
 # Finally, build the production image with minimal footprint
 FROM base
@@ -42,5 +42,9 @@ WORKDIR /app
 COPY --from=production-deps /app/node_modules /app/node_modules
 COPY --from=build /app/build /app/build
 COPY --from=build /app/package.json /app/package.json
+
+# Add drizzle config and migrations
+COPY drizzle.config.ts drizzle.config.ts
+COPY drizzle drizzle
 
 CMD [ "pnpm", "exec", "remix", "serve", "./build/server/index.js" ] 
