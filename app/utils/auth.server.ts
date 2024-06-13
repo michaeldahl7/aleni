@@ -18,7 +18,7 @@ export const authenticator = new Authenticator<UserSelect>(sessionStorage, {
 });
 
 const getCallback = (provider: SocialsProvider) => {
-  return `http://${process.env.URL}/auth/${provider}/callback`;
+  return `${process.env.URL}/auth/${provider}/callback`;
 };
 
 authenticator.use(
