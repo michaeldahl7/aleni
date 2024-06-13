@@ -55,6 +55,8 @@
     "@radix-ui/themes": "^3.0.5",
     "@remix-run/server-runtime": "^2.9.2",
     "@remix-run/serve": "^2.9.2",
+    "@remix-run/node": "^2.9.2",
+    "@remix-run/react": "^2.9.2",
     "@routes-gen/remix": "^0.3.7",
     "@vercel/postgres": "^0.8.0",
     "class-variance-authority": "^0.7.0",
@@ -93,8 +95,6 @@
   },
   "devDependencies": {
     "@remix-run/dev": "^2.9.2",
-    "@remix-run/node": "^2.9.2",
-    "@remix-run/react": "^2.9.2",
     "@types/better-sqlite3": "^7.6.10",
     "@types/node": "^20.14.2",
     "@types/pg": "^8.11.6",
