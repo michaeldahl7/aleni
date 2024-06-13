@@ -88,7 +88,6 @@ export function CheckboxField({
   });
   const id = buttonProps.id ?? fallbackId;
   const errorId = errors?.length ? `${id}-error` : undefined;
-  console.log("errorId", errorId);
 
   return (
     <div className={className}>

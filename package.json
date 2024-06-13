@@ -3,17 +3,20 @@
   "private": true,
   "sideEffects": false,
   "type": "module",
+  "packageManager": "pnpm@9.1.1",
   "scripts": {
-    "build": "npm run db:gen && npm run build:app && npm prune --production",
+    "build": "pnpm run db:gen && pnpm run build:app && pnpm prune --production",
     "build:app": "remix vite:build",
     "dev": "remix vite:dev",
-    "start": "npm run db:migrate && npm exec remix-serve ./build/server/index.js",
+    "start": "pnpm run db:migrate && pnpm exec remix-serve ./build/server/index.js",
+    "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "db:push": "drizzle-kit push",
     "db:gen": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "db:up": "drizzle-kit up",
-    "clear-db": "tsx app/utils/clear.db.server.ts"
+    "clear-db": "tsx app/utils/clear.db.server.ts",
+    "typecheck": "tsc"
   },
   "dependencies": {
     "@conform-to/react": "^1.1.4",
@@ -89,7 +92,6 @@
   },
   "devDependencies": {
     "@remix-run/dev": "^2.9.2",
-    "@remix-run/eslint-config": "^2.9.2",
     "@remix-run/node": "^2.9.2",
     "@remix-run/react": "^2.9.2",
     "@remix-run/serve": "^2.9.2",
@@ -116,5 +118,8 @@
     "typescript": "^5.4.5",
     "vite": "^5.2.13",
     "vite-tsconfig-paths": "^4.3.2"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   }
 }
