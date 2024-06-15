@@ -32,7 +32,7 @@ export type Workout = {
   activities: {
     name: string;
     sets: {
-      reps: number;
+      reps: number | null;
       weight: string | null;
     }[];
   }[];

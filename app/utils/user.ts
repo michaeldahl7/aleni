@@ -2,6 +2,10 @@
 // import { useRouteLoaderData } from "@remix-run/react";
 // import { type loader as UserLoader } from "~/routes/$username.tsx";
 
+export function isOnboarded(user: any) {
+  return user && user.username;
+}
+
 // function isUser(user: any): user is SerializeFrom<typeof UserLoader>["user"] {
 //   return user && typeof user === "object" && typeof user.id === "string";
 // }

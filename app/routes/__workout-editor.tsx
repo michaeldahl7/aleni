@@ -5,11 +5,7 @@ import { Input } from "~/components/ui/input";
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { z } from "zod";
-import {
-  Form,
-  useActionData,
-  useNavigate,
-} from "@remix-run/react";
+import { Form, useActionData, useNavigate } from "@remix-run/react";
 
 import {
   Card,
@@ -28,6 +24,8 @@ import { GeneralErrorBoundary } from "~/components/ErrorBoundary";
 import { Workout } from "~/db/workout.server";
 
 import { type action } from "~/utils/__workout-editor.server";
+import { title } from "process";
+import { activities } from "~/db/schema.server";
 
 const setSchema = z.object({
   reps: z.number({ required_error: "Reps are required" }).min(1),
@@ -103,18 +101,31 @@ export function WorkoutEditor({
   const navigate = useNavigate();
   const lastResult = useActionData<typeof action>();
   //   const { activities, user } = useLoaderData<typeof loader>();
+  console.log(typeof workout);
+  console.log("workout", workout);
+  //   const sets = workout?.activities.map((activity) => activity.sets);
+  //   sets;
+  //   const workoutActivities = workout?.activities.map((activity) => ({
+  //     name: activity.name,
+  //     sets: activity.sets.map((set) => ({
+  //       reps: set.reps,
+  //       weight: set.weight,
+  //     })),
+  //   }));
+  //   console.log("workoutActivities", workoutActivities);
 
   const [form, fields] = useForm({
     id: "workout-form",
     lastResult,
     constraint: getZodConstraint(workoutSchema),
     defaultValue: {
+      userId,
       ...workout,
     },
 
     onValidate({ formData }) {
       const parseResult = parseWithZod(formData, { schema: workoutSchema });
-     
+
       console.log("parseResult", parseResult);
       return parseResult;
     },
@@ -177,7 +188,7 @@ export function WorkoutEditor({
                       </div>
                     </CardTitle>
                     <CardDescription>
-                      Enter in the activty you did, such as squat, lunge,
+                      Enter in the activity you did, such as squat, lunge,
                       deadlift and then add the reps and weight for each set.
                     </CardDescription>
                   </CardHeader>
@@ -188,9 +199,7 @@ export function WorkoutEditor({
                         children: "Name",
                       }}
                       inputProps={{
-                        name: activityFields.name.name,
-                        id: activityFields.name.id,
-                        placeholder: "",
+                        ...getInputProps(activityFields.name, { type: "text" }),
                       }}
                       errors={activityFields.name.errors}
                       className="grid gap-2 flex-grow"
@@ -209,9 +218,9 @@ export function WorkoutEditor({
                               children: "Reps",
                             }}
                             inputProps={{
-                              name: setFields.reps.name,
-                              id: setFields.reps.name,
-                              placeholder: "10",
+                              ...getInputProps(setFields.reps, {
+                                type: "number",
+                              }),
                             }}
                             errors={setFields.reps.errors}
                             className="grid  gap-2"
@@ -223,8 +232,9 @@ export function WorkoutEditor({
                               children: "Weight",
                             }}
                             inputProps={{
-                              id: setFields.weight.name,
-                              placeholder: "120",
+                              ...getInputProps(setFields.weight, {
+                                type: "number",
+                              }),
                             }}
                             errors={setFields.weight.errors}
                             className="grid  gap-2"

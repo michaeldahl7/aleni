@@ -21,7 +21,6 @@ import {
 import { z } from "zod";
 import { createUsername, isUsernameTaken } from "~/db/user.server";
 import { useEffect } from "react";
-// eslint-disable-next-line import/no-named-as-default
 import posthog from "posthog-js";
 
 function createSchema(options?: {
@@ -64,7 +63,16 @@ export const loader = defineLoader(async ({ request }) => {
   if (user && user.username) {
     throw redirect(`/${user.username}/workouts`);
   }
-  return user;
+  let session = await getSession(request.headers.get("cookie"));
+  let error = session.get(authenticator.sessionErrorKey);
+  return json(
+    { error, user },
+    {
+      headers: {
+        "Set-Cookie": await commitSession(session), // You must commit the session whenever you read a flash
+      },
+    }
+  );
 });
 
 export const action = defineAction(async ({ request }) => {
@@ -116,7 +124,7 @@ export const meta: MetaFunction = () => {
 };
 
 export default function IndexRoute() {
-  const user = useLoaderData<typeof loader>();
+  const { user, error } = useLoaderData<typeof loader>();
   useEffect(() => {
     if (user) {
       if (
@@ -153,6 +161,7 @@ export default function IndexRoute() {
             <Button className="w-2/4" asChild>
               <Link to="/signup">Signup</Link>
             </Button>
+            {error && <div className="text-destructive">{error.message}</div>}
           </div>
         ) : (
           <Form method="post" {...getFormProps(form)} className="grid gap-2">

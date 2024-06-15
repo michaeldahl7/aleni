@@ -1,3 +1,4 @@
+import { captureRemixErrorBoundaryError, withSentry } from "@sentry/remix";
 import {
   Links,
   Meta,
@@ -17,12 +18,33 @@ import {
   ThemeProvider,
   useTheme,
 } from "remix-themes";
-import { LoaderFunctionArgs } from "@remix-run/node";
+import {
+  LinksFunction,
+  LoaderFunctionArgs,
+  MetaFunction,
+} from "@remix-run/node";
 import { themeSessionResolver } from "~/utils/session.server";
 
-import "./styles.css";
-import { Button } from "./components/ui/button";
-import { Toaster } from "@/components/ui/sonner";
+import "~/styles/tailwind.css";
+import tailwindStyleSheetUrl from "~/styles/tailwind.css?url";
+import fontStyleSheetUrl from "~/styles/inter.css?url";
+import { Button } from "~/components/ui/button";
+import { Toaster } from "~/components/ui/sonner";
+
+export const links: LinksFunction = () => {
+  return [
+    { rel: "stylesheet", href: tailwindStyleSheetUrl },
+    { rel: "preload", href: fontStyleSheetUrl, as: "style" },
+    { rel: "stylesheet", href: fontStyleSheetUrl },
+  ].filter(Boolean);
+};
+
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  return [
+    { title: data ? "Aleni" : "Error | Aleni" },
+    { name: "description", content: `Your assistant` },
+  ];
+};
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { getTheme } = await themeSessionResolver(request);
@@ -31,7 +53,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   };
 }
 
-export default function AppWithProviders() {
+function AppWithProviders() {
   const data = useLoaderData<typeof loader>();
   return (
     <ThemeProvider specifiedTheme={data.theme} themeAction="/action/set-theme">
@@ -39,6 +61,8 @@ export default function AppWithProviders() {
     </ThemeProvider>
   );
 }
+
+export default withSentry(AppWithProviders);
 
 export function App() {
   const data = useLoaderData<typeof loader>();
@@ -77,6 +101,7 @@ interface ErrorBoundaryProps {
 export function ErrorBoundary({ theme }: ErrorBoundaryProps) {
   const error = useRouteError();
   console.error(error);
+  captureRemixErrorBoundaryError(error);
   return (
     <html lang="en" className={clsx(theme)}>
       <head>

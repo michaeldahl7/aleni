@@ -32,7 +32,7 @@ export default function UsernameRoute() {
             <Link to="/">Home</Link>
           </Button>
           <div className="flex items-center justify-between gap-4">
-            <ModeToggle />
+            {/* <ModeToggle /> */}
             <Form action="/logout" method="post">
               <Button>Logout</Button>
             </Form>

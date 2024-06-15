@@ -11,15 +11,17 @@ export const loader = defineLoader(async ({ request, params }) => {
   });
   invariant(params.workoutId, "workoutId is required");
   const workout = await getWorkoutById(params.workoutId);
-  return workout;
+  invariant(workout, "workout is required");
+
+  return { workout, user };
 });
 
 export default function EditWorkout() {
-  const data = useLoaderData<typeof loader>();
+  const { workout, user } = useLoaderData<typeof loader>();
   return (
     <>
-    <div>Hello</div>
-    {/* <WorkoutEditor {data}/> */}
+      <div>Hello</div>
+      <WorkoutEditor workout={workout} userId={user.id} />
     </>
   );
 }

@@ -27,15 +27,13 @@ interface LoginProps {
 
 export default function Login({ title }: LoginProps) {
   return (
-    <div className="h-full">
-      <div className="flex items-center flex-col justify-center h-screen">
-        <div className="w-80 h-[20rem] flex flex-col items-center">
-          <Dumbbell size={48} strokeWidth={1} className="mb-4" />
-          <div className="font-semibold text-2xl mb-9">{title}</div>
-          <div className="flex flex-col items-center w-full gap-3 text-sm">
-            <SocialButton provider="google" label="Continue with Google" />
-            <SocialButton provider="discord" label="Continue with Discord" />
-          </div>
+    <div className="flex items-center flex-col justify-center">
+      <div className="w-80 flex flex-col items-center">
+        <Dumbbell size={48} strokeWidth={1} className="mb-4" />
+        <div className="font-semibold text-2xl mb-9">{title}</div>
+        <div className="flex flex-col items-center w-full gap-3 text-sm">
+          <SocialButton provider="google" label="Continue with Google" />
+          <SocialButton provider="discord" label="Continue with Discord" />
         </div>
       </div>
     </div>

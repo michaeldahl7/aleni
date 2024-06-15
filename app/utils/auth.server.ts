@@ -18,7 +18,6 @@ export const authenticator = new Authenticator<UserSelect>(sessionStorage, {
 });
 
 const getCallback = (provider: SocialsProvider) => {
-  const callbackURL = `${process.env.URL}/auth/${provider}/callback`
   return `${process.env.URL}/auth/${provider}/callback`;
 };
 
@@ -30,6 +29,11 @@ authenticator.use(
       callbackURL: getCallback(SocialsProvider.DISCORD),
     },
     async ({ profile }) => {
+      if (profile && profile.__json.verified === false) {
+        throw new Error(
+          "Discord account is not verified. Please verify your account with Discord and try again."
+        );
+      }
       const user = await findOrCreateUserByEmail(profile.__json.email!);
       return user;
     }
@@ -44,6 +48,11 @@ authenticator.use(
       callbackURL: getCallback(SocialsProvider.GOOGLE),
     },
     async ({ profile }) => {
+      if (profile && profile._json.email_verified === false) {
+        throw new Error(
+          "Google account is not verified. Please verify your account with Google and try again."
+        );
+      }
       const user = await findOrCreateUserByEmail(profile.emails[0].value);
       return user;
     }
