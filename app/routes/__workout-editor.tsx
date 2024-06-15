@@ -187,7 +187,7 @@ export function WorkoutEditor({
                         </Button>
                       </div>
                     </CardTitle>
-                    <CardDescription>
+                    <CardDescription className="w-4/5">
                       Enter in the activity you did, such as squat, lunge,
                       deadlift and then add the reps and weight for each set.
                     </CardDescription>

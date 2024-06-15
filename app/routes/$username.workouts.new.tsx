@@ -25,9 +25,9 @@ export default function WorkoutNew() {
       {
         name: "",
         sets: [
-          { reps: 1, weight: "" },
-          { reps: 3, weight: "" },
-          { reps: 4, weight: "" },
+          { reps: null, weight: "" },
+          { reps: null, weight: "" },
+          { reps: null, weight: "" },
         ],
       },
     ],

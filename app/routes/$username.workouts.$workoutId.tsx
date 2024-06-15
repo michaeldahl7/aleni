@@ -1,15 +1,17 @@
 // import { LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { Form, useLoaderData, useNavigate } from "@remix-run/react";
+import { Form, Link, useLoaderData, useNavigate } from "@remix-run/react";
 import { UserSelect } from "~/db/schema.server";
 import { deleteWorkout, getWorkoutById } from "~/db/workout.server";
 import { authenticator } from "~/utils/auth.server";
 import invariant from "tiny-invariant";
+import { TrashIcon, Pencil1Icon } from "@radix-ui/react-icons";
 
 import {
   unstable_defineLoader as defineLoader,
   unstable_defineAction as defineAction,
   redirect,
 } from "@remix-run/node";
+import { Button } from "~/components/ui/button";
 
 export const loader = defineLoader(async ({ request, params }) => {
   const user: UserSelect = await authenticator.isAuthenticated(request, {
@@ -36,8 +38,9 @@ export default function WorkoutRoute() {
   const navigate = useNavigate();
 
   return (
-    <div>
-      <h1>{workout.title}</h1>
+    <div className="absolute inset-0 flex flex-col px-10">
+      <h2 className="text-6xl mb-12 pt-6">{workout.title}</h2>
+      <div>{workout.title}</div>
 
       <ul>
         {workout.activities.map((activity, index) => (
@@ -53,10 +56,24 @@ export default function WorkoutRoute() {
           </li>
         ))}
       </ul>
-      <button onClick={() => navigate(`edit`)}>Edit</button>
-      <Form method="post">
-        <button type="submit">Delete</button>
-      </Form>
+      <div className="flex justify-end gap-4">
+        {/* <Button vari onClick={() => navigate(`edit`)}>
+          Edit
+        </Button> */}
+        {/* <button onClick={() => navigate(`edit`)}>Edit</button> */}
+        <Form method="post">
+          <Button variant="destructive" type="submit" className="flex gap-1">
+            <TrashIcon />
+            Delete
+          </Button>
+        </Form>
+        <Button variant="default" asChild>
+          <Link to="edit" className="flex gap-1">
+            <Pencil1Icon />
+            Edit
+          </Link>
+        </Button>
+      </div>
     </div>
   );
 }

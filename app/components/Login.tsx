@@ -12,7 +12,7 @@ interface SocialButtonProps {
 const SocialButton = ({ provider, label, className }: SocialButtonProps) => (
   <Form action={`/auth/${provider}`} method="post" className="w-full">
     <Button
-      className={`w-full h-11 flex items-center justify-center gap-4 px-4 py-2 border border-gray-300 rounded-md ${className}`}
+      className={`w-full h-11 flex items-center justify-center gap-4 px-4 py-2 border border-gray-300 rounded-md`}
     >
       {provider === "google" && <Google />}
       {provider === "discord" && <Discord />}

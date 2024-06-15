@@ -18,10 +18,5 @@ export const loader = defineLoader(async ({ request, params }) => {
 
 export default function EditWorkout() {
   const { workout, user } = useLoaderData<typeof loader>();
-  return (
-    <>
-      <div>Hello</div>
-      <WorkoutEditor workout={workout} userId={user.id} />
-    </>
-  );
+  return <WorkoutEditor workout={workout} userId={user.id} />;
 }
