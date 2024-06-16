@@ -61,7 +61,7 @@ function createSchema(options?: {
 export const loader = defineLoader(async ({ request }) => {
   const user = await authenticator.isAuthenticated(request);
   if (user && user.username) {
-    throw redirect(`/${user.username}/workouts`);
+    throw redirect(`/${user.username}/home`);
   }
   let session = await getSession(request.headers.get("cookie"));
   let error = session.get(authenticator.sessionErrorKey);

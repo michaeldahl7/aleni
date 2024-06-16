@@ -55,9 +55,9 @@ export function Field({
         aria-describedby={errorId}
         {...inputProps}
       />
-      <div className="min-h-[32px] px-4 pb-1 pt-1">
+      {/* <div className="min-h-[32px] px-4 pb-1 pt-1">
         {errorId ? <ErrorList id={errorId} errors={errors} /> : null}
-      </div>
+      </div> */}
     </div>
   );
 }

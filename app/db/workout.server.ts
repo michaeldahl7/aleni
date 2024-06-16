@@ -14,7 +14,7 @@ import type {
 // };
 export async function getWorkoutsOfUser(userId: string) {
   return db.query.workouts.findMany({
-    columns: { title: true, id: true },
+    columns: { title: true, id: true, date: true },
     where: eq(workouts.userId, userId),
     with: {
       activities: {
@@ -29,6 +29,7 @@ export async function getWorkoutsOfUser(userId: string) {
 export type Workout = {
   id: string;
   title: string;
+  date: Date | null;
   activities: {
     name: string;
     sets: {
