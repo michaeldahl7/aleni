@@ -1,4 +1,4 @@
-import { MinusCircle, PlusCircle, PlusIcon } from "lucide-react";
+import { MinusCircle, PlusCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -25,7 +25,6 @@ import { Form, useActionData, useNavigate } from "@remix-run/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 
 import { type action } from "~/utils/__workout-editor.server";
-import { s } from "node_modules/vite/dist/node/types.d-aGj9QkWt";
 import { Cross1Icon } from "@radix-ui/react-icons";
 
 const setSchema = z.object({
@@ -42,8 +41,8 @@ const activitySchema = z.object({
 
 export const workoutSchema = z.object({
   userId: z.string(),
-  title: z.string().optional(),
-  //   title: z.string({ required_error: "Please provide a workout title" }),
+  //   title: z.string().optional(),
+  title: z.string({ required_error: "Please provide a workout title" }),
   activities: z
     .array(activitySchema)
     .nonempty({ message: "Please provide at least one activity" }),
@@ -101,62 +100,220 @@ export default function Component({
   const activitiesFields = fields.activities.getFieldList();
 
   return (
-    <>
-      <Form method="post" {...getFormProps(form)}>
+    <div className="w-[640] mx-auto">
+      <Form
+        method="post"
+        {...getFormProps(form)}
+        className="flex flex-col gap-4 "
+      >
         <Card>
           <CardHeader>
             <CardTitle>Workout</CardTitle>
-            <CardDescription></CardDescription>
+            <CardDescription>
+              Create a new workout consisting of activities and sets.
+              <Field
+                labelProps={{
+                  // htmlFor: activityFields.name.name,
+                  children: "Name",
+                }}
+                inputProps={{
+                  ...getInputProps(fields.title, { type: "text" }),
+                }}
+                errors={fields.title.errors}
+                className="grid gap-2 flex-grow"
+              />
+            </CardDescription>
           </CardHeader>
-          <CardContent>hello</CardContent>
-        </Card>
-        {activitiesFields.map((activity, activityIndex) => {
-          const activityFields = activity.getFieldset();
-          const setsFields = activityFields.sets.getFieldList();
-          return (
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  <div className="flex justify-between relative">
-                    Activity
+          <CardContent className="flex flex-col gap-4">
+            {activitiesFields.map((activity, activityIndex) => {
+              const activityFields = activity.getFieldset();
+              const setsFields = activityFields.sets.getFieldList();
+              return (
+                <Card>
+                  <CardHeader className="flex flex-row justify-between items-start">
+                    <div className="grid gap-2">
+                      <CardTitle>Activity</CardTitle>
+                      <CardDescription>
+                        Enter a name for this activity
+                      </CardDescription>
+                    </div>
+
                     <Button
                       variant="outline"
                       size="icon"
-                      className="absolute right-0 top-0 "
                       {...form.remove.getButtonProps({
                         name: fields.activities.name,
                         index: activityIndex,
                       })}
                     >
-                      <div className="inline-flex items-center ">
-                        <Cross1Icon />
-                      </div>
+                      <Cross1Icon />
                     </Button>
-                  </div>
-                </CardTitle>
-                <CardDescription className="w-4/5">
-                  Hello
-                  <Field
-                    labelProps={{
-                      htmlFor: activityFields.name.name,
-                      //   children: "Name",
-                    }}
-                    inputProps={{
-                      ...getInputProps(activityFields.name, { type: "text" }),
-                    }}
-                    errors={activityFields.name.errors}
-                    className="grid gap-1 flex-grow"
-                  />
-                </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Field
+                      labelProps={{
+                        // htmlFor: activityFields.name.name,
+                        children: "Name",
+                      }}
+                      inputProps={{
+                        ...getInputProps(activityFields.name, { type: "text" }),
+                      }}
+                      errors={activityFields.name.errors}
+                      className="grid gap-2 flex-grow"
+                    />
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-[50px]">Set</TableHead>
+                          <TableHead>Reps</TableHead>
+                          <TableHead>Weight</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {setsFields.map((set, setIndex) => {
+                          const setFields = set.getFieldset();
+                          return (
+                            <TableRow>
+                              <TableCell className="font-semibold text-center">
+                                {setIndex + 1}
+                              </TableCell>
+                              <TableCell>
+                                <Field
+                                  labelProps={{
+                                    htmlFor: setFields.reps.name,
+                                    // children: "Reps",
+                                  }}
+                                  inputProps={{
+                                    ...getInputProps(setFields.reps, {
+                                      type: "number",
+                                    }),
+                                  }}
+                                  errors={setFields.reps.errors}
+                                  className="grid  gap-1"
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <Field
+                                  labelProps={{
+                                    htmlFor: setFields.weight.name,
+                                    // children: "Weight",
+                                  }}
+                                  inputProps={{
+                                    ...getInputProps(setFields.weight, {
+                                      type: "number",
+                                    }),
+                                  }}
+                                  errors={setFields.weight.errors}
+                                  className="grid  gap-2"
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="gap-2"
+                                  {...form.remove.getButtonProps({
+                                    name: `${fields.activities.name}[${activityIndex}].sets`,
+                                    index: setIndex,
+                                  })}
+                                >
+                                  <MinusCircle className="h-4 w-4" />
+                                  Remove
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                    <div className="flex justify-center mt-2 -mb-2">
+                      <Button
+                        variant="ghost"
+                        className="gap-2"
+                        {...form.insert.getButtonProps({
+                          name: `${fields.activities.name}[${activityIndex}].sets`,
+                        })}
+                      >
+                        <PlusCircle />
+                        Set
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+            <Button
+              variant="secondary"
+              {...form.insert.getButtonProps({
+                name: fields.activities.name,
+                defaultValue: createEmptyActivity(),
+              })}
+            >
+              <div className="inline-flex items-center gap-2">
+                <PlusCircle />
+                Activity
+              </div>
+            </Button>
+          </CardContent>
+          <CardFooter className="flex justify-between">
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => navigate(-1)}
+            >
+              Cancel
+            </Button>
+            <div className="flex gap-3">
+              <Button variant="outline" {...form.reset.getButtonProps()}>
+                Reset
+              </Button>
+              <Button type="submit">Submit</Button>
+            </div>
+          </CardFooter>
+        </Card>
+
+        {/* {activitiesFields.map((activity, activityIndex) => {
+          const activityFields = activity.getFieldset();
+          const setsFields = activityFields.sets.getFieldList();
+          return (
+            <Card>
+              <CardHeader className="flex flex-row justify-between items-start">
+                <div className="grid gap-2">
+                  <CardTitle>Activity</CardTitle>
+                  <CardDescription>
+                    Enter a name for this activity
+                  </CardDescription>
+                </div>
+
+                <Button
+                  variant="outline"
+                  size="icon"
+                  {...form.remove.getButtonProps({
+                    name: fields.activities.name,
+                    index: activityIndex,
+                  })}
+                >
+                  <Cross1Icon />
+                </Button>
               </CardHeader>
               <CardContent>
+                <Field
+                  labelProps={{
+                    // htmlFor: activityFields.name.name,
+                    children: "Name",
+                  }}
+                  inputProps={{
+                    ...getInputProps(activityFields.name, { type: "text" }),
+                  }}
+                  errors={activityFields.name.errors}
+                  className="grid gap-2 flex-grow"
+                />
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead className="w-[50px]">Set</TableHead>
                       <TableHead>Reps</TableHead>
                       <TableHead>Weight</TableHead>
-                      {/* <TableHead className="w-[100px]">KG/LB</TableHead> */}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -201,14 +358,14 @@ export default function Component({
                             <Button
                               size="sm"
                               variant="ghost"
-                              className="gap-1"
+                              className="gap-2"
                               {...form.remove.getButtonProps({
                                 name: `${fields.activities.name}[${activityIndex}].sets`,
                                 index: setIndex,
                               })}
                             >
-                              <MinusCircle className="h-3.5 w-3.5" />
-                              Remove Set
+                              <MinusCircle className="h-4 w-4" />
+                              Remove
                             </Button>
                           </TableCell>
                         </TableRow>
@@ -216,24 +373,23 @@ export default function Component({
                     })}
                   </TableBody>
                 </Table>
+                <div className="flex justify-center border-t pt-4 -pb-1">
+                  <Button
+                    variant="ghost"
+                    className="gap-2"
+                    {...form.insert.getButtonProps({
+                      name: `${fields.activities.name}[${activityIndex}].sets`,
+                    })}
+                  >
+                    <PlusCircle />
+                    Add Set
+                  </Button>
+                </div>
               </CardContent>
-              <CardFooter className="justify-center border-t p-4">
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="gap-1"
-                  {...form.insert.getButtonProps({
-                    name: `${fields.activities.name}[${activityIndex}].sets`,
-                  })}
-                >
-                  <PlusCircle className="h-3.5 w-3.5" />
-                  Add Set
-                </Button>
-              </CardFooter>
             </Card>
           );
-        })}
-        <Button
+        })} */}
+        {/* <Button
           variant="secondary"
           {...form.insert.getButtonProps({
             name: fields.activities.name,
@@ -241,28 +397,28 @@ export default function Component({
           })}
         >
           <div className="inline-flex items-center gap-2">
-            <PlusIcon />
-            Activity
+            <PlusCircle />
+            Add Activity
           </div>
-        </Button>
-        <Card>
-          <CardHeader>
-            <CardFooter className="flex justify-between">
-              <Button
-                variant="outline"
-                type="button"
-                onClick={() => navigate(-1)}
-              >
-                Cancel
-              </Button>
-              <Button variant="outline" {...form.reset.getButtonProps()}>
-                Reset
-              </Button>
-              <Button type="submit">Submit</Button>
-            </CardFooter>
-          </CardHeader>
-        </Card>
+        </Button> */}
+        {/* <Card>
+          <CardHeader></CardHeader>
+          <CardContent className="flex justify-between">
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => navigate(-1)}
+            >
+              Cancel
+            </Button>
+
+            <Button variant="outline" {...form.reset.getButtonProps()}>
+              Reset
+            </Button>
+            <Button type="submit">Submit</Button>
+          </CardContent>
+        </Card> */}
       </Form>
-    </>
+    </div>
   );
 }

@@ -42,7 +42,7 @@ export const loader = defineLoader(async ({ params, request }) => {
 export default function UsernameRoute() {
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
-      <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
+      {/* <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
         <nav className="flex flex-col items-center gap-4 px-2 sm:py-5">
           <TooltipProvider>
             <Tooltip>
@@ -75,9 +75,30 @@ export default function UsernameRoute() {
             </Tooltip>
           </TooltipProvider>
         </nav>
-      </aside>
-      <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+      </aside> */}
+      <div className="flex min-h-screen flex-col sm:gap-4  ">
+        <header className="sticky top-0  flex h-16 items-center gap-4 border-b bg-background px-4  md:px-6">
+          <nav className="hidden flex-col gap-6 text-lg font-medium sm:flex sm:flex-row sm:items-center sm:gap-5 sm:text-sm lg:gap-6">
+            <Link
+              to="/"
+              className="flex items-center gap-2 text-lg font-semibold md:text-base"
+            >
+              <Home className="h-6 w-6" />
+              <span className="sr-only">Acme Inc</span>
+            </Link>
+            <Link
+              to="/"
+              className="text-foreground transition-colors hover:text-foreground"
+            >
+              Workouts
+            </Link>
+            <Link
+              to="/"
+              className="text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Analytics
+            </Link>
+          </nav>
           <Sheet>
             <SheetTrigger asChild>
               <Button size="icon" variant="outline" className="sm:hidden">
@@ -92,14 +113,21 @@ export default function UsernameRoute() {
                   className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
                 >
                   <Dumbbell className="h-5 w-5 transition-all group-hover:scale-110" />
-                  <span className="sr-only">Acme Inc</span>
+                  <span className="sr-only">Aleni</span>
                 </Link>
                 <Link
                   to="/"
                   className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
                 >
                   <Home className="h-5 w-5" />
-                  Dashboard
+                  Workouts
+                </Link>
+                <Link
+                  to="/"
+                  className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+                >
+                  <Settings className="h-5 w-5" />
+                  Analytics
                 </Link>
                 <Link
                   to="/"
@@ -157,6 +185,7 @@ export default function UsernameRoute() {
             </DropdownMenuContent>
           </DropdownMenu>
         </header>
+
         <Outlet />
       </div>
     </div>

@@ -46,7 +46,7 @@ export function Field({
         htmlFor={id}
         {...labelProps}
         className={`${labelProps.className ?? ""} ${
-          errorId ? "text-destructive" : ""
+          errorId ? "text-destructive/80" : ""
         }`}
       />
       <Input
@@ -54,6 +54,9 @@ export function Field({
         aria-invalid={errorId ? true : undefined}
         aria-describedby={errorId}
         {...inputProps}
+        className={`${inputProps.className ?? ""} ${
+          errorId ? "border-destructive/80" : ""
+        }`}
       />
       {/* <div className="min-h-[32px] px-4 pb-1 pt-1">
         {errorId ? <ErrorList id={errorId} errors={errors} /> : null}

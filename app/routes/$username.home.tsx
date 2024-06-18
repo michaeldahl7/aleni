@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useLoaderData, Link, useFetcher } from "@remix-run/react";
 import { getWorkoutsOfUser } from "~/db/workout.server";
 import { requireUserSession } from "~/utils/require-user.server";
+import { CirclePlusIcon, PlusIcon } from "lucide-react";
 
 import {
   unstable_defineLoader as defineLoader,
@@ -92,89 +93,96 @@ export default function WorkoutsRoute() {
   };
 
   return (
-    <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 md:mx-16">
-      <Card className="mx-auto grid flex-1 auto-rows-max gap-4 sm:col-span-2">
-        <CardHeader className="pb-3 flex flex-row items-center justify-between gap-4">
-          <div className="grid gap-2">
-            <CardTitle>Workouts</CardTitle>
-            <CardDescription>
-              Track your workouts and progress in a simple and organized way.
-            </CardDescription>
-          </div>
-          <Button asChild size="sm" className="gap-1">
-            <Link to={`/${user.username}/workouts/new`}>Add Workout</Link>
-          </Button>
-        </CardHeader>
-        <CardContent>
-          {workouts ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Workout</TableHead>
-                  <TableHead className="">Date</TableHead>
-                  <TableHead>
-                    <span className="sr-only">Actions</span>
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {workouts.map((workout) => (
-                  <TableRow key={workout.id}>
-                    <TableCell>{workout.title}</TableCell>
-                    <TableCell>
-                      {workout.date
-                        ? workout.date.toLocaleDateString()
-                        : "No Date"}
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            aria-haspopup="true"
-                            size="icon"
-                            variant="ghost"
-                          >
-                            <Ellipsis className="h-4 w-4" />
-                            <span className="sr-only">Toggle menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="flex-grow">
-                            <Button variant="ghost" size="sm" asChild>
-                              <Link
-                                to={`/${user.username}/workouts/${workout.id}/edit`}
+    <main className="flex flex-1 flex-col p-4 sm:px-6 sm:py-0 md:gap-8 ">
+      <div className="flex justify-center">
+        <Card className="">
+          <CardHeader className="flex flex-row gap-8 items-center">
+            <div className="grid gap-2">
+              <CardTitle>Workouts</CardTitle>
+              <CardDescription>
+                Track your workouts and progress.
+              </CardDescription>
+            </div>
+            <Button asChild className="ml-auto gap-2">
+              <Link to={`/${user.username}/workouts/new`}>
+                <CirclePlusIcon />
+                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                  Add Workout
+                </span>
+              </Link>
+            </Button>
+          </CardHeader>
+          <CardContent>
+            {workouts ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Workout</TableHead>
+                    <TableHead className="">Date</TableHead>
+                    <TableHead>
+                      <span className="sr-only">Actions</span>
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {workouts.map((workout) => (
+                    <TableRow key={workout.id}>
+                      <TableCell>{workout.title}</TableCell>
+                      <TableCell>
+                        {workout.date
+                          ? workout.date.toLocaleDateString()
+                          : "No Date"}
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              aria-haspopup="true"
+                              size="icon"
+                              variant="ghost"
+                            >
+                              <Ellipsis className="h-4 w-4" />
+                              <span className="sr-only">Toggle menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="flex-grow">
+                              <Button variant="ghost" size="sm" asChild>
+                                <Link
+                                  to={`/${user.username}/workouts/${workout.id}/edit`}
+                                  className="w-full"
+                                >
+                                  Edit
+                                </Link>
+                              </Button>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="flex-grow"
+                              onSelect={() => handleDeleteClick(workout.id)}
+                            >
+                              <Button
+                                variant="ghost"
+                                size="sm"
                                 className="w-full"
                               >
-                                Edit
-                              </Link>
-                            </Button>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="flex-grow"
-                            onSelect={() => handleDeleteClick(workout.id)}
-                          >
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="w-full"
-                            >
-                              Delete
-                            </Button>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          ) : (
-            <div>No workouts</div>
-          )}
-        </CardContent>
-      </Card>
+                                Delete
+                              </Button>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <div>No workouts</div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>

@@ -82,9 +82,7 @@ export function App() {
       </head>
 
       <body>
-        <div className="flex h-screen flex-col justify-between">
-          <Outlet />
-        </div>
+        <Outlet />
 
         <Toaster />
         <ScrollRestoration />

@@ -1,5 +1,5 @@
 import { useLoaderData } from "@remix-run/react";
-import { WorkoutEditor } from "~/routes/__workout-editor";
+import { WorkoutEditor } from "~/routes/__workout-editor_old";
 import { unstable_defineLoader as defineLoader } from "@remix-run/node";
 import { authenticator } from "~/utils/auth.server";
 import { getWorkoutById } from "~/db/workout.server";
