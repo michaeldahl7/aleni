@@ -5,7 +5,7 @@ FROM node:20-alpine as base
 ENV NODE_ENV production
 RUN apk add --no-cache python3 make g++
 # Install pnpm globally in the base image
-RUN npm install -g pnpm
+RUN npm install -g pnpm drizzle-kit
 
 # Install all node_modules, including dev dependencies
 FROM base as deps
