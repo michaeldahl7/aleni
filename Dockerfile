@@ -46,8 +46,8 @@ COPY --from=build /app/build /app/build
 COPY --from=build /app/package.json /app/package.json
 
 # Add drizzle config and migrations
-COPY drizzle.config.ts drizzle.config.ts
-COPY drizzle drizzle
+COPY --from=build drizzle.config.ts drizzle.config.ts
+COPY --from=build drizzle drizzle
 
 # Run drizzle-kit migrate before starting the application
 CMD ["sh", "-c", "pnpm exec drizzle-kit migrate && pnpm exec remix-serve ./build/server/index.js"]
