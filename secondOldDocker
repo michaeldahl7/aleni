@@ -1,6 +1,6 @@
 # base node image
 FROM node:20-alpine3.20 as base
-
+RUN apk add --no-cache python3 make g++
 # set for base and all layer that inherit from it
 ENV NODE_ENV production
 # # Install pnpm globally in the base image
@@ -47,4 +47,4 @@ COPY --from=build /app/package.json /app/package.json
 COPY drizzle.config.ts drizzle.config.ts
 COPY drizzle drizzle
 
-CMD [ "pnpm", "exec", "remix", "serve", "./build/server/index.js" ] 
+CMD [ "pnpm", "exec", "remix", "serve", "./build/server/index.js" ]
