@@ -1,8 +1,8 @@
 import { GeneralErrorBoundary } from "~/components/ErrorBoundary";
-import { WorkoutEditor, createEmptyActivity } from "~/routes/__workout-editor";
+import { WorkoutEditor } from "~/routes/__workout-editor";
 import { authenticator } from "~/utils/auth.server";
 import { UserSelect } from "~/db/schema.server";
-import { Workout } from "~/db/workout.server";
+
 
 import { unstable_defineLoader as defineLoader } from "@remix-run/node";
 export { action } from "~/utils/__workout-editor.server";
@@ -12,7 +12,7 @@ export const loader = defineLoader(async ({ request }) => {
   const user: UserSelect = await authenticator.isAuthenticated(request, {
     failureRedirect: "/login",
   });
-  //   const emptyWorkout = createEmptyWorkout;
+
   return user;
 });
 

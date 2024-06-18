@@ -41,7 +41,7 @@ export type Workout = {
 
 export async function getWorkoutById(workoutId: string) {
   return db.query.workouts.findFirst({
-    columns: { title: true, id: true },
+    columns: { title: true, id: true, date: true },
     where: eq(workouts.id, workoutId),
     with: {
       activities: {

@@ -1,4 +1,3 @@
-// import bcrypt from "bcryptjs";
 import { db } from "~/db/config.server";
 import { eq } from "drizzle-orm"; // Ensure db is properly initialized
 import { users } from "~/db/schema.server";

@@ -1,5 +1,5 @@
 import { useLoaderData } from "@remix-run/react";
-import { WorkoutEditor } from "~/routes/__workout-editor_old";
+import { WorkoutEditor } from "~/routes/__workout-editor";
 import { unstable_defineLoader as defineLoader } from "@remix-run/node";
 import { authenticator } from "~/utils/auth.server";
 import { getWorkoutById } from "~/db/workout.server";
@@ -20,7 +20,7 @@ export const loader = defineLoader(async ({ request, params }) => {
 export default function EditWorkout() {
   const { workout, user } = useLoaderData<typeof loader>();
   //   return <WorkoutEditor workout={workout} userId={user.id} />;
-  return <Table workout={workout} userId={user.id} />;
+  return <WorkoutEditor workout={workout} userId={user.id} />;
 }
 
 {
