@@ -1,8 +1,9 @@
 # base node image
-FROM node:21-alpine3.18 as base
+FROM node:20-bookworm0slim as base
 
 # Set for base and all layers that inherit from it
 ENV NODE_ENV production
+RUN apk add --no-cache python3 make g++
 # Install pnpm globally in the base image
 RUN npm install -g pnpm
 
@@ -12,7 +13,7 @@ FROM base as deps
 WORKDIR /app
 
 ADD package.json pnpm-lock.yaml ./
-RUN pnpm install --include=dev
+RUN pnpm install --production=false
 
 # Setup production node_modules
 FROM base as production-deps
@@ -21,7 +22,7 @@ WORKDIR /app
 
 COPY --from=deps /app/node_modules /app/node_modules
 ADD package.json pnpm-lock.yaml ./
-RUN pnpm prune --omit=dev
+RUN pnpm prune --production
 
 # Build the app
 FROM base as build
@@ -48,6 +49,7 @@ COPY --from=build /app/package.json /app/package.json
 # Add drizzle config and migrations
 COPY --from=build drizzle.config.ts drizzle.config.ts
 COPY --from=build drizzle drizzle
+ADD . .
 
 # Run drizzle-kit migrate before starting the application
 CMD ["sh", "-c", "pnpm exec drizzle-kit migrate && pnpm exec remix-serve ./build/server/index.js"]
