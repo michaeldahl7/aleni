@@ -17,10 +17,8 @@ export async function getUserById(id: string) {
 export async function findOrCreateUserByEmail(
   email: string
 ): Promise<UserSelect> {
-  console.log("email", email);
   let user = await getUserByEmail(email);
   if (!user) {
-    console.log("user not found");
     user = await createUserByEmail(email);
 
     const phClient = PostHogNodeClient();

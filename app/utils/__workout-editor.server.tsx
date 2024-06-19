@@ -18,18 +18,20 @@ export const action = defineAction(async ({ request }) => {
   if (submission.status !== "success") {
     return json(submission.reply());
   }
-  const workout = await createWorkout(
-    submission.value.userId,
-    submission.value.activities,
-    submission.value.title
-  );
-
-  if (!workout) {
+  let workout;
+  try {
+    workout = await createWorkout(
+      submission.value.userId,
+      submission.value.activities,
+      submission.value.title
+    );
+  } catch (error) {
     return json(
       submission.reply({
         formErrors: ["Failed to create workout. Please try again later."],
       })
     );
   }
+
   throw redirect(`/${user.username}/workouts/${workout.id}`);
 });

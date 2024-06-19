@@ -19,7 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Field } from "~/components/Forms";
+import { ErrorList, Field } from "~/components/Forms";
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import {
   Form,
@@ -32,6 +32,7 @@ import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { type action } from "~/utils/__workout-editor.server";
 import { Cross1Icon } from "@radix-ui/react-icons";
 import { Input } from "~/components/ui/input";
+import { GeneralErrorBoundary } from "~/components/ErrorBoundary";
 
 const setSchema = z.object({
   reps: z.number({ required_error: "Reps are required" }).min(1),
@@ -97,8 +98,6 @@ export function WorkoutEditor({
 
     onValidate({ formData }) {
       const parseResult = parseWithZod(formData, { schema: workoutSchema });
-
-      console.log("parseResult", parseResult);
       return parseResult;
     },
 
@@ -278,6 +277,7 @@ export function WorkoutEditor({
             >
               Cancel
             </Button>
+            <ErrorList id={form.errorId} errors={form.errors} />
             <div className="flex gap-3">
               <Button variant="outline" {...form.reset.getButtonProps()}>
                 Reset
@@ -291,154 +291,11 @@ export function WorkoutEditor({
             </div>
           </CardFooter>
         </Card>
-
-        {/* {activitiesFields.map((activity, activityIndex) => {
-          const activityFields = activity.getFieldset();
-          const setsFields = activityFields.sets.getFieldList();
-          return (
-            <Card>
-              <CardHeader className="flex flex-row justify-between items-start">
-                <div className="grid gap-2">
-                  <CardTitle>Activity</CardTitle>
-                  <CardDescription>
-                    Enter a name for this activity
-                  </CardDescription>
-                </div>
-
-                <Button
-                  variant="outline"
-                  size="icon"
-                  {...form.remove.getButtonProps({
-                    name: fields.activities.name,
-                    index: activityIndex,
-                  })}
-                >
-                  <Cross1Icon />
-                </Button>
-              </CardHeader>
-              <CardContent>
-                <Field
-                  labelProps={{
-                    // htmlFor: activityFields.name.name,
-                    children: "Name",
-                  }}
-                  inputProps={{
-                    ...getInputProps(activityFields.name, { type: "text" }),
-                  }}
-                  errors={activityFields.name.errors}
-                  className="grid gap-2 flex-grow"
-                />
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[50px]">Set</TableHead>
-                      <TableHead>Reps</TableHead>
-                      <TableHead>Weight</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {setsFields.map((set, setIndex) => {
-                      const setFields = set.getFieldset();
-                      return (
-                        <TableRow>
-                          <TableCell className="font-semibold text-center">
-                            {setIndex + 1}
-                          </TableCell>
-                          <TableCell>
-                            <Field
-                              labelProps={{
-                                htmlFor: setFields.reps.name,
-                                // children: "Reps",
-                              }}
-                              inputProps={{
-                                ...getInputProps(setFields.reps, {
-                                  type: "number",
-                                }),
-                              }}
-                              errors={setFields.reps.errors}
-                              className="grid  gap-1"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Field
-                              labelProps={{
-                                htmlFor: setFields.weight.name,
-                                // children: "Weight",
-                              }}
-                              inputProps={{
-                                ...getInputProps(setFields.weight, {
-                                  type: "number",
-                                }),
-                              }}
-                              errors={setFields.weight.errors}
-                              className="grid  gap-2"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="gap-2"
-                              {...form.remove.getButtonProps({
-                                name: `${fields.activities.name}[${activityIndex}].sets`,
-                                index: setIndex,
-                              })}
-                            >
-                              <MinusCircle className="h-4 w-4" />
-                              Remove
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-                <div className="flex justify-center border-t pt-4 -pb-1">
-                  <Button
-                    variant="ghost"
-                    className="gap-2"
-                    {...form.insert.getButtonProps({
-                      name: `${fields.activities.name}[${activityIndex}].sets`,
-                    })}
-                  >
-                    <PlusCircle />
-                    Add Set
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })} */}
-        {/* <Button
-          variant="secondary"
-          {...form.insert.getButtonProps({
-            name: fields.activities.name,
-            defaultValue: createEmptyActivity(),
-          })}
-        >
-          <div className="inline-flex items-center gap-2">
-            <PlusCircle />
-            Add Activity
-          </div>
-        </Button> */}
-        {/* <Card>
-          <CardHeader></CardHeader>
-          <CardContent className="flex justify-between">
-            <Button
-              variant="outline"
-              type="button"
-              onClick={() => navigate(-1)}
-            >
-              Cancel
-            </Button>
-
-            <Button variant="outline" {...form.reset.getButtonProps()}>
-              Reset
-            </Button>
-            <Button type="submit">Submit</Button>
-          </CardContent>
-        </Card> */}
       </Form>
     </div>
   );
+}
+
+export function ErrorBoundary() {
+  return <GeneralErrorBoundary />;
 }
