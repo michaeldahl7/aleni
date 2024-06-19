@@ -3,7 +3,7 @@ FROM node:20-alpine as base
 
 # Set for base and all layers that inherit from it
 ENV NODE_ENV production
-RUN apk add --no-cache python3 make g++
+RUN apk add --no-cache python3 make g++ curl
 # Install pnpm globally in the base image
 RUN npm install -g pnpm
 
