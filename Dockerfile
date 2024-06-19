@@ -58,4 +58,7 @@ COPY . .
 COPY --from=build /app/drizzle.config.ts /app/drizzle.config.ts
 COPY --from=build /app/drizzle /app/drizzle
 
+# Ensure the start.sh script has executable permissions
+RUN chmod +x /app/start.sh
+
 ENTRYPOINT [ "./start.sh" ]
