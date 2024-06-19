@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useLoaderData, Link, useFetcher } from "@remix-run/react";
-import { getWorkoutsOfUser } from "~/db/workout.server";
-import { requireUserSession } from "~/utils/require-user.server";
+import { getWorkouts } from "~/db/workout.server";
+import { requireUser } from "~/utils/require-user.server";
 import { CirclePlusIcon, PlusIcon } from "lucide-react";
 
 import {
@@ -62,9 +62,9 @@ export const action = defineAction(async ({ request, params }) => {
 });
 
 export const loader = defineLoader(async ({ request }) => {
-  const user = await requireUserSession(request);
+  const user = await requireUser(request);
   try {
-    const workouts = await getWorkoutsOfUser(user.id);
+    const workouts = await getWorkouts(user.id);
     invariant(workouts, "workouts is required");
     return { workouts, user };
   } catch (error) {

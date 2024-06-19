@@ -9,6 +9,7 @@ import {
   Link,
   Outlet,
   isRouteErrorResponse,
+  redirect,
   useRouteError,
 } from "@remix-run/react";
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
@@ -26,14 +27,14 @@ import {
 import { unstable_defineLoader as defineLoader } from "@remix-run/node";
 import { Home, Menu, Settings, Search, Dumbbell } from "lucide-react";
 
-import { requireUserSession } from "~/utils/require-user.server";
+import { requireUser } from "~/utils/require-user.server";
 import { ModeToggle } from "~/components/ModeToggle";
 
 export const loader = defineLoader(async ({ params, request }) => {
-  const user = await requireUserSession(request);
+  const user = await requireUser(request);
   const { username } = params;
   if (user && user.username !== username) {
-    throw new Response("Not Found", { status: 404 });
+    throw redirect("/");
   }
 
   return user;
@@ -41,43 +42,9 @@ export const loader = defineLoader(async ({ params, request }) => {
 
 export default function UsernameRoute() {
   return (
-    <div className="flex min-h-screen w-full flex-col bg-muted/40">
-      {/* <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
-        <nav className="flex flex-col items-center gap-4 px-2 sm:py-5">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link
-                  to="/"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
-                >
-                  <Home className="h-5 w-5" />
-                  <span className="sr-only">Dashboard</span>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">Dashboard</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </nav>
-        <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link
-                  to="/"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
-                >
-                  <Settings className="h-5 w-5" />
-                  <span className="sr-only">Settings</span>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">Settings</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </nav>
-      </aside> */}
-      <div className="flex min-h-screen flex-col sm:gap-4  ">
-        <header className="sticky top-0  flex h-16 items-center gap-4 border-b bg-background px-4  md:px-6">
+    <div className="flex min-h-screen w-full flex-col ">
+      <div className="flex min-h-screen flex-col sm:gap-4">
+        <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
           <nav className="hidden flex-col gap-6 text-lg font-medium sm:flex sm:flex-row sm:items-center sm:gap-5 sm:text-sm lg:gap-6">
             <Link
               to="/"
@@ -169,11 +136,11 @@ export default function UsernameRoute() {
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
-                <Form action="/" method="post" className="flex-grow">
-                  <Button variant="ghost" size="sm" className="w-full">
+                <Button variant="ghost" size="sm" className="w-full" asChild>
+                  <Link to="/" className="flex-grow">
                     Settings
-                  </Button>
-                </Form>
+                  </Link>
+                </Button>
               </DropdownMenuItem>
               <DropdownMenuItem asChild className="flex-grow">
                 <Form action="/logout" method="post">
@@ -185,7 +152,6 @@ export default function UsernameRoute() {
             </DropdownMenuContent>
           </DropdownMenu>
         </header>
-
         <Outlet />
       </div>
     </div>

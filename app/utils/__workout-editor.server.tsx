@@ -5,7 +5,7 @@ import {
   redirect,
 } from "@remix-run/node";
 import { authenticator } from "~/utils/auth.server";
-import { workoutSchema } from "~/routes/__workout-editor_old";
+import { workoutSchema } from "~/routes/__workout-editor";
 import { parseWithZod } from "@conform-to/zod";
 
 export const action = defineAction(async ({ request }) => {

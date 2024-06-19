@@ -57,10 +57,6 @@ export default function WorkoutRoute() {
         ))}
       </ul>
       <div className="flex justify-end gap-4">
-        {/* <Button vari onClick={() => navigate(`edit`)}>
-          Edit
-        </Button> */}
-        {/* <button onClick={() => navigate(`edit`)}>Edit</button> */}
         <Form method="post">
           <Button variant="destructive" type="submit" className="flex gap-1">
             <TrashIcon />

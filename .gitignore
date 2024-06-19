@@ -2,8 +2,7 @@ node_modules
 /.cache
 /build
 .env
-
-
+view.drizzle.config.ts
 # Sentry Config File
 .sentryclirc
 
