@@ -31,7 +31,7 @@ WORKDIR /app
 
 COPY --from=deps /app/node_modules /app/node_modules
 
-# COPY drizzle ./drizzle
+COPY drizzle.config.ts /app/drizzle.config.ts
 
 RUN pnpm exec drizzle-kit generate
 
