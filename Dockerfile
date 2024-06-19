@@ -33,6 +33,8 @@ COPY --from=deps /app/node_modules /app/node_modules
 
 COPY drizzle.config.ts /app/drizzle.config.ts
 
+RUN ls -la /app
+
 RUN pnpm exec drizzle-kit generate
 
 COPY . .
