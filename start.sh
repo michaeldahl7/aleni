@@ -1,3 +1,5 @@
 #!/bin/sh
-pnpm exec drizzle-kit migrate
+ls -la /app
+ls -la
+pnpm run db:migrate
 pnpm run start
