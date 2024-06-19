@@ -35,11 +35,11 @@ COPY drizzle.config.ts /app/drizzle.config.ts
 
 RUN ls -la /app
 
-RUN pnpm exec drizzle-kit generate
-
 COPY . .
 
-RUN  pnpm run build
+RUN pnpm run db:gen
+
+RUN pnpm run build
 
 # Finally, build the production image with minimal footprint
 FROM base
