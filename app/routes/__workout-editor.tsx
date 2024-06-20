@@ -1,4 +1,4 @@
-import { MinusCircle, PlusCircle } from "lucide-react";
+import { Minus, MinusCircle, PlusCircle, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -122,65 +122,71 @@ export function WorkoutEditor({
             className="visually-hidden"
           />
           <CardHeader>
-            <CardTitle>Workout</CardTitle>
+            <CardTitle>New Workout</CardTitle>
             <CardDescription>
               Create a new workout consisting of activities and sets.
-              <Field
-                labelProps={{
-                  // htmlFor: activityFields.name.name,
-                  children: "Name",
-                }}
-                inputProps={{
-                  ...getInputProps(fields.title, { type: "text" }),
-                }}
-                errors={fields.title.errors}
-                className="grid gap-2 flex-grow"
-              />
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
+            <Field
+              labelProps={{
+                htmlFor: fields.title.name,
+                children: "Workout Title",
+              }}
+              inputProps={{
+                ...getInputProps(fields.title, { type: "text" }),
+                placeholder: "e.g. Chest, Legs, Back, etc.",
+              }}
+              errors={fields.title.errors}
+              className="grid gap-2 flex-grow"
+            />
             {activitiesFields.map((activity, activityIndex) => {
               const activityFields = activity.getFieldset();
               const setsFields = activityFields.sets.getFieldList();
               return (
                 <Card>
-                  <CardHeader className="flex flex-row justify-between items-start">
-                    <div className="grid gap-2">
-                      <CardTitle>Activity</CardTitle>
-                      <CardDescription>
-                        Enter a name for this activity
-                      </CardDescription>
-                    </div>
-
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      {...form.remove.getButtonProps({
-                        name: fields.activities.name,
-                        index: activityIndex,
-                      })}
-                    >
-                      <Cross1Icon />
-                    </Button>
+                  <CardHeader className="flex  ">
+                    <CardTitle>
+                      <div className="flex justify-between">
+                        Activity Name
+                        <Button
+                          variant="outline"
+                          {...form.remove.getButtonProps({
+                            name: fields.activities.name,
+                            index: activityIndex,
+                          })}
+                        >
+                          <Trash2 />
+                        </Button>
+                      </div>
+                      <Field
+                        labelProps={{
+                          htmlFor: activityFields.name.name,
+                          // children: "Activity Name",
+                        }}
+                        inputProps={{
+                          ...getInputProps(activityFields.name, {
+                            type: "text",
+                          }),
+                          placeholder: "e.g. Squats, Lunges, Crunches, etc.",
+                        }}
+                        errors={activityFields.name.errors}
+                        className="grid gap-2 flex-grow"
+                      />
+                    </CardTitle>
+                    {/* <CardDescription>
+                        Enter (one or more) sets to this activity, which
+                        consists of a at least one rep and optional weight.
+                      </CardDescription> */}
                   </CardHeader>
                   <CardContent>
-                    <Field
-                      labelProps={{
-                        // htmlFor: activityFields.name.name,
-                        children: "Name",
-                      }}
-                      inputProps={{
-                        ...getInputProps(activityFields.name, { type: "text" }),
-                      }}
-                      errors={activityFields.name.errors}
-                      className="grid gap-2 flex-grow"
-                    />
                     <Table>
                       <TableHeader>
                         <TableRow>
                           <TableHead className="w-[50px]">Set</TableHead>
                           <TableHead>Reps</TableHead>
-                          <TableHead>Weight</TableHead>
+                          <TableHead>Weight (optional)</TableHead>
+                          {/* <TableHead>kg/lb</TableHead> */}
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -231,8 +237,7 @@ export function WorkoutEditor({
                                     index: setIndex,
                                   })}
                                 >
-                                  <MinusCircle className="h-4 w-4" />
-                                  Remove
+                                  <MinusCircle />
                                 </Button>
                               </TableCell>
                             </TableRow>
@@ -240,16 +245,16 @@ export function WorkoutEditor({
                         })}
                       </TableBody>
                     </Table>
-                    <div className="flex justify-center mt-2 -mb-2">
+                    <div className="flex justify-center border-t mt-3 pt-2 -mb-2">
                       <Button
+                        className="gap-2 w-1/2"
                         variant="ghost"
-                        className="gap-2"
                         {...form.insert.getButtonProps({
                           name: `${fields.activities.name}[${activityIndex}].sets`,
                         })}
                       >
                         <PlusCircle />
-                        Set
+                        <p className="text-lg">Set</p>
                       </Button>
                     </div>
                   </CardContent>
@@ -263,24 +268,17 @@ export function WorkoutEditor({
                 defaultValue: createEmptyActivity(),
               })}
             >
-              <div className="inline-flex items-center gap-2">
+              <div className="flex items-center gap-2">
                 <PlusCircle />
-                Activity
+                <p className="text-lg">Activity</p>
               </div>
             </Button>
           </CardContent>
-          <CardFooter className="flex justify-between">
-            <Button
-              variant="outline"
-              type="button"
-              onClick={() => navigate(-1)}
-            >
-              Cancel
-            </Button>
+          <CardFooter className="flex justify-center my-5">
             <ErrorList id={form.errorId} errors={form.errors} />
-            <div className="flex gap-3">
+            <div className="flex gap-4">
               <Button variant="outline" {...form.reset.getButtonProps()}>
-                Reset
+                Clear
               </Button>
               <Button
                 type="submit"
