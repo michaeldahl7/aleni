@@ -107,7 +107,7 @@ export function WorkoutEditor({
   const activitiesFields = fields.activities.getFieldList();
 
   return (
-    <div className="w-[640] mx-auto">
+    <div className="">
       <Form
         method="post"
         {...getFormProps(form)}
@@ -145,7 +145,7 @@ export function WorkoutEditor({
               const setsFields = activityFields.sets.getFieldList();
               return (
                 <Card>
-                  <CardHeader className="flex  ">
+                  <CardHeader>
                     <CardTitle>
                       <div className="flex justify-between">
                         Activity Name
@@ -171,7 +171,7 @@ export function WorkoutEditor({
                           placeholder: "e.g. Squats, Lunges, Crunches, etc.",
                         }}
                         errors={activityFields.name.errors}
-                        className="grid gap-2 flex-grow"
+                        className="w-1/2"
                       />
                     </CardTitle>
                     {/* <CardDescription>
