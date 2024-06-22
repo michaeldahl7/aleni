@@ -1,7 +1,6 @@
-import * as React from "react";
-import { Dialog } from "@radix-ui/react-dialog";
-import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-
+import { useFetcher } from "@remix-run/react";
+import { useState } from "react";
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -13,66 +12,44 @@ import {
 } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-
-import { toast } from "sonner";
-
 export default function DropDownDelete() {
-  //   const [open, setIsOpen] = React.useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = React.useState(false);
+  const fetcher = useFetcher();
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [selectedWorkoutId, setSelectedWorkoutId] = useState<string | null>(
+    null
+  );
+  const handleDeleteClick = (workoutId: string) => {
+    setSelectedWorkoutId(workoutId);
+    setShowDeleteDialog(true);
+  };
 
+  const handleDeleteConfirm = () => {
+    fetcher.submit({ workoutId: selectedWorkoutId }, { method: "post" });
+    setShowDeleteDialog(false);
+    toast("Workout Deleted");
+  };
   return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="secondary">
-            <span className="sr-only">Actions</span>
-            <DotsHorizontalIcon className="h-4 w-4" />
+    // <div className="flex gap-2">
+    //   <Button variant="secondary">
+    //     <span className="sr-only">Actions</span>
+    //     <DotsHorizontalIcon className="h-4 w-4" />
+    //   </Button>
+    // </div>
+    <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <Button variant="destructive" onClick={handleDeleteConfirm}>
+            Delete
           </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem
-            onSelect={() => setShowDeleteDialog(true)}
-            className="text-red-600"
-          >
-            Delete activity
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This preset will no longer be
-              accessible by you or others you&apos;ve shared it with.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <Button
-              variant="destructive"
-              onClick={() => {
-                setShowDeleteDialog(false);
-                toast("Deleted ", {
-                  description: "Sunday, December 03, 2023 at 9:00 AM",
-                  action: {
-                    label: "Undo",
-                    onClick: () => console.log("Undo"),
-                  },
-                });
-              }}
-            >
-              Delete
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

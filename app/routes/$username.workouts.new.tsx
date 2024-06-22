@@ -3,7 +3,6 @@ import { WorkoutEditor } from "~/routes/__workout-editor";
 import { authenticator } from "~/utils/auth.server";
 import { UserSelect } from "~/db/schema.server";
 
-
 import { unstable_defineLoader as defineLoader } from "@remix-run/node";
 export { action } from "~/utils/__workout-editor.server";
 import { useLoaderData } from "@remix-run/react";
@@ -33,7 +32,11 @@ export default function WorkoutNew() {
     ],
   };
   //   const { user } = useLoaderData<typeof loader>();
-  return <WorkoutEditor workout={emptyWorkout} userId={user.id} />;
+  return (
+    <div className="flex justify-center">
+      <WorkoutEditor workout={emptyWorkout} userId={user.id} />
+    </div>
+  );
 }
 
 export function ErrorBoundary() {

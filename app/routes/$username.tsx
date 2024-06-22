@@ -10,7 +10,9 @@ import {
   Outlet,
   isRouteErrorResponse,
   redirect,
+  useLoaderData,
   useRouteError,
+  useSubmit,
 } from "@remix-run/react";
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -20,15 +22,16 @@ import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuItem,
+  DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
 import { unstable_defineLoader as defineLoader } from "@remix-run/node";
-import { Home, Menu, Settings, Search, Dumbbell } from "lucide-react";
+import { Home, Menu, Settings, Search, Dumbbell, User } from "lucide-react";
 
 import { requireUser } from "~/utils/require-user.server";
 import { ModeToggle } from "~/components/ModeToggle";
+import { useRef } from "react";
+import invariant from "tiny-invariant";
 
 export const loader = defineLoader(async ({ params, request }) => {
   const user = await requireUser(request);
@@ -41,6 +44,9 @@ export const loader = defineLoader(async ({ params, request }) => {
 });
 
 export default function UsernameRoute() {
+  const user = useLoaderData<typeof loader>();
+  const username = user.username;
+  invariant(username, "Username not found");
   return (
     <div className="flex min-h-screen w-full flex-col ">
       <div className="flex min-h-screen flex-col sm:gap-4">
@@ -53,18 +59,12 @@ export default function UsernameRoute() {
               <Home className="h-6 w-6" />
               <span className="sr-only">Acme Inc</span>
             </Link>
-            <Link
+            {/* <Link
               to="/"
               className="text-foreground transition-colors hover:text-foreground"
             >
               Workouts
-            </Link>
-            <Link
-              to="/"
-              className="text-muted-foreground transition-colors hover:text-foreground"
-            >
-              Analytics
-            </Link>
+            </Link> */}
           </nav>
           <Sheet>
             <SheetTrigger asChild>
@@ -116,41 +116,7 @@ export default function UsernameRoute() {
             />
           </div>
           <ModeToggle />
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="overflow-hidden rounded-full"
-              >
-                <img
-                  src="/images/dahl_trash.png"
-                  width={36}
-                  height={36}
-                  alt="Avatar"
-                  className="overflow-hidden rounded-full"
-                />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Button variant="ghost" size="sm" className="w-full" asChild>
-                  <Link to="/" className="flex-grow">
-                    Settings
-                  </Link>
-                </Button>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild className="flex-grow">
-                <Form action="/logout" method="post">
-                  <Button variant="ghost" size="sm" className="w-full">
-                    Logout
-                  </Button>
-                </Form>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <UserDropdown username={user.username} />
         </header>
         <Outlet />
       </div>
@@ -181,4 +147,45 @@ export function ErrorBoundary() {
   } else {
     return <h1>Unknown Error</h1>;
   }
+}
+
+function UserDropdown(username: string) {
+  //   const username = requireUsername();
+  //   const username = "dahl";
+  const submit = useSubmit();
+  const formRef = useRef<HTMLFormElement>(null);
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button asChild variant="secondary">
+          <Link
+            to={`/${username}`}
+            // this is for progressive enhancement
+
+            className="flex items-center gap-2"
+          >
+            <User></User>
+          </Link>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuPortal>
+        <DropdownMenuContent sideOffset={10} align="start">
+          <DropdownMenuItem
+            asChild
+            // this prevents the menu from closing before the form submission is completed
+            onSelect={(event) => {
+              event.preventDefault();
+              submit(formRef.current);
+            }}
+          >
+            <Form action="/logout" method="POST" ref={formRef} className="flex">
+              <button className="flex-1 text-left cursor-default">
+                Logout
+              </button>
+            </Form>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenuPortal>
+    </DropdownMenu>
+  );
 }

@@ -21,7 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { Ellipsis } from "lucide-react";
+import { Ellipsis, CirclePlusIcon } from "lucide-react";
 
 import {
   AlertDialog,
@@ -33,11 +33,11 @@ import {
   AlertDialogTitle,
 } from "~/components/ui/alert-dialog";
 
-import { CirclePlusIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
 
 import { Link, useFetcher } from "@remix-run/react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export function Workouts({
   workouts,
@@ -52,7 +52,6 @@ export function Workouts({
 }) {
   const fetcher = useFetcher();
 
-  type Workout = (typeof workouts)[number];
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedWorkoutId, setSelectedWorkoutId] = useState<string | null>(
     null
@@ -65,6 +64,7 @@ export function Workouts({
   const handleDeleteConfirm = () => {
     fetcher.submit({ workoutId: selectedWorkoutId }, { method: "post" });
     setShowDeleteDialog(false);
+    toast("Workout Deleted");
   };
   return (
     <main className="flex flex-1 flex-col p-4 sm:px-6 sm:py-0 md:gap-8 ">
@@ -123,8 +123,18 @@ export function Workouts({
                             <DropdownMenuContent align="end">
                               <DropdownMenuLabel>Actions</DropdownMenuLabel>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem className="flex-grow">
-                                <Button variant="ghost" size="sm" asChild>
+                              <DropdownMenuItem className="flex-grow" asChild>
+                                <Button variant="ghost" size="sm">
+                                  <Link
+                                    to={`/${username}/workouts/${workout.id}`}
+                                    className="w-full"
+                                  >
+                                    View
+                                  </Link>
+                                </Button>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem className="flex-grow" asChild>
+                                <Button variant="ghost" size="sm">
                                   <Link
                                     to={`/${username}/workouts/${workout.id}/edit`}
                                     className="w-full"
@@ -162,10 +172,9 @@ export function Workouts({
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This workout will no longer be
-              accessible by you or others you've shared it with.
+              This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

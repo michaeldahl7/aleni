@@ -1,4 +1,4 @@
-import { Minus, MinusCircle, PlusCircle, Trash2 } from "lucide-react";
+import { MinusCircle, PlusCircle, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -30,7 +30,6 @@ import {
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 
 import { type action } from "~/utils/__workout-editor.server";
-import { Cross1Icon } from "@radix-ui/react-icons";
 import { Input } from "~/components/ui/input";
 import { GeneralErrorBoundary } from "~/components/ErrorBoundary";
 
@@ -107,7 +106,7 @@ export function WorkoutEditor({
   const activitiesFields = fields.activities.getFieldList();
 
   return (
-    <div className="">
+    <div className="w-[600px]">
       <Form
         method="post"
         {...getFormProps(form)}
@@ -124,7 +123,7 @@ export function WorkoutEditor({
           <CardHeader>
             <CardTitle>New Workout</CardTitle>
             <CardDescription>
-              Create a new workout consisting of activities and sets.
+              Create a new workout consisting of one or more activities.
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
@@ -138,7 +137,7 @@ export function WorkoutEditor({
                 placeholder: "e.g. Chest, Legs, Back, etc.",
               }}
               errors={fields.title.errors}
-              className="grid gap-2 flex-grow"
+              className=" grid gap-2 flex-grow"
             />
             {activitiesFields.map((activity, activityIndex) => {
               const activityFields = activity.getFieldset();
@@ -148,7 +147,7 @@ export function WorkoutEditor({
                   <CardHeader>
                     <CardTitle>
                       <div className="flex justify-between">
-                        Activity Name
+                        Activity
                         <Button
                           variant="outline"
                           {...form.remove.getButtonProps({
@@ -162,7 +161,7 @@ export function WorkoutEditor({
                       <Field
                         labelProps={{
                           htmlFor: activityFields.name.name,
-                          // children: "Activity Name",
+                          children: "Name",
                         }}
                         inputProps={{
                           ...getInputProps(activityFields.name, {
@@ -171,7 +170,7 @@ export function WorkoutEditor({
                           placeholder: "e.g. Squats, Lunges, Crunches, etc.",
                         }}
                         errors={activityFields.name.errors}
-                        className="w-1/2"
+                        className="font-normal leading-normal tracking-normal grid gap-2"
                       />
                     </CardTitle>
                     {/* <CardDescription>
@@ -284,7 +283,7 @@ export function WorkoutEditor({
                 type="submit"
                 disabled={navigation.state === "submitting"}
               >
-                {isCreating ? "Creating..." : "Create"}
+                {isCreating ? "Submitting..." : "Submit"}
               </Button>
             </div>
           </CardFooter>
