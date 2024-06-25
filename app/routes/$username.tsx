@@ -135,10 +135,10 @@ function UserDropdown(username: string) {
               submit(formRef.current);
             }}
           >
-            <Form action="/logout" method="POST" ref={formRef} className="flex">
-              <button className="flex-1 text-left cursor-default">
+            <Form action="/logout" method="POST" ref={formRef}>
+              <Button className="  cursor-default " variant="ghost">
                 Logout
-              </button>
+              </Button>
             </Form>
           </DropdownMenuItem>
         </DropdownMenuContent>
