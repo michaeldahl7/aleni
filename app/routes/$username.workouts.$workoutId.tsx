@@ -61,7 +61,7 @@ export default function WorkoutRoute() {
     <div className=" flex px-8 justify-center">
       <Card className="w-[500px]">
         <CardHeader>
-          <CardTitle>
+          <CardTitle className="flex justify-center gap-2">
             {workout.title}{" "}
             {workout.date ? "- " + workout.date.toLocaleDateString() : ""}
           </CardTitle>

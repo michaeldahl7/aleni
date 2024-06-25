@@ -16,7 +16,7 @@
     "db:studio:prod": "NODE_ENV=production pnpm run db:studio",
     "db:studio": "drizzle-kit studio",
     "db:up": "drizzle-kit up",
-    "clear-db": "tsx app/utils/clear.db.server.ts",
+    "db:clear": "tsx app/utils/clear.db.server.ts",
     "typecheck": "tsc",
     "knip": "knip"
   },

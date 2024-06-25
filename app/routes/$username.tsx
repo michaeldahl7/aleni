@@ -25,6 +25,7 @@ import {
   DropdownMenuItem,
   DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
+
 import { unstable_defineLoader as defineLoader } from "@remix-run/node";
 import { Home, Menu, Settings, Search, Dumbbell, User } from "lucide-react";
 
@@ -89,20 +90,6 @@ export default function UsernameRoute() {
                   <Home className="h-5 w-5" />
                   Workouts
                 </Link>
-                <Link
-                  to="/"
-                  className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-                >
-                  <Settings className="h-5 w-5" />
-                  Analytics
-                </Link>
-                <Link
-                  to="/"
-                  className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-                >
-                  <Settings className="h-5 w-5" />
-                  Settings
-                </Link>
               </nav>
             </SheetContent>
           </Sheet>
@@ -116,37 +103,12 @@ export default function UsernameRoute() {
             />
           </div>
           <ModeToggle />
-          <UserDropdown username={user.username} />
+          <UserDropdown username={username} />
         </header>
         <Outlet />
       </div>
     </div>
   );
-}
-
-export function ErrorBoundary() {
-  const error = useRouteError();
-  if (isRouteErrorResponse(error)) {
-    return (
-      <div>
-        <h1>
-          {error.status} {error.statusText}
-        </h1>
-        <p>{error.data}</p>
-      </div>
-    );
-  } else if (error instanceof Error) {
-    return (
-      <div>
-        <h1>Error</h1>
-        <p>{error.message}</p>
-        <p>The stack trace is:</p>
-        <pre>{error.stack}</pre>
-      </div>
-    );
-  } else {
-    return <h1>Unknown Error</h1>;
-  }
 }
 
 function UserDropdown(username: string) {
@@ -158,12 +120,7 @@ function UserDropdown(username: string) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button asChild variant="secondary">
-          <Link
-            to={`/${username}`}
-            // this is for progressive enhancement
-
-            className="flex items-center gap-2"
-          >
+          <Link to={`/${username}`} className="flex items-center gap-2">
             <User></User>
           </Link>
         </Button>

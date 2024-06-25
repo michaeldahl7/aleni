@@ -5,6 +5,8 @@ import { authenticator } from "~/utils/auth.server";
 import { getWorkoutById } from "~/db/workout.server";
 import invariant from "tiny-invariant";
 
+export { action } from "~/utils/__workout-editor.server";
+
 export const loader = defineLoader(async ({ request, params }) => {
   const user = await authenticator.isAuthenticated(request, {
     failureRedirect: "/login",

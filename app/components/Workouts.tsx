@@ -87,7 +87,7 @@ export function Workouts({
             </Button>
           </CardHeader>
           <CardContent>
-            {workouts ? (
+            {workouts.length > 0 ? (
               <div>
                 <Table>
                   <TableHeader>
@@ -116,41 +116,51 @@ export function Workouts({
                                 size="icon"
                                 variant="ghost"
                               >
-                                <Ellipsis className="h-4 w-4" />
+                                <Ellipsis className="size-4" />
                                 <span className="sr-only">Toggle menu</span>
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
+                            <DropdownMenuContent align="start">
                               <DropdownMenuLabel>Actions</DropdownMenuLabel>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem className="flex-grow" asChild>
-                                <Button variant="ghost" size="sm">
+                              <DropdownMenuItem asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  asChild
+                                  className="flex justify-start"
+                                >
                                   <Link
                                     to={`/${username}/workouts/${workout.id}`}
-                                    className="w-full"
                                   >
                                     View
                                   </Link>
                                 </Button>
                               </DropdownMenuItem>
-                              <DropdownMenuItem className="flex-grow" asChild>
-                                <Button variant="ghost" size="sm">
+                              <DropdownMenuItem asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  asChild
+                                  className="flex justify-start"
+                                >
                                   <Link
                                     to={`/${username}/workouts/${workout.id}/edit`}
-                                    className="w-full"
+                                    className=""
                                   >
                                     Edit
                                   </Link>
                                 </Button>
                               </DropdownMenuItem>
                               <DropdownMenuItem
-                                className="flex-grow"
+                                // className="flex-grow"
                                 onSelect={() => handleDeleteClick(workout.id)}
+                                asChild
                               >
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="w-full"
+                                  className="w-full hover:cursor-default flex justify-start"
                                 >
                                   Delete
                                 </Button>
@@ -164,7 +174,9 @@ export function Workouts({
                 </Table>
               </div>
             ) : (
-              <div>No workouts</div>
+              <Card className="m-4 p-2">
+                <div className="flex justify-center">No workouts</div>
+              </Card>
             )}
           </CardContent>
         </Card>

@@ -32,11 +32,7 @@ export default function WorkoutNew() {
     ],
   };
   //   const { user } = useLoaderData<typeof loader>();
-  return (
-    <div className="flex justify-center">
-      <WorkoutEditor workout={emptyWorkout} userId={user.id} />
-    </div>
-  );
+  return <WorkoutEditor workout={emptyWorkout} userId={user.id} />;
 }
 
 export function ErrorBoundary() {

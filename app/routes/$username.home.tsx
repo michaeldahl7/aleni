@@ -44,7 +44,19 @@ export default function RouteComponent() {
 export function ErrorBoundary() {
   const error = useRouteError();
   if (isRouteErrorResponse(error)) {
-    return <div />;
+    return (
+      <div>
+        <h1>Error</h1>
+        <p>{error.data}</p>
+        <p>The stack trace is:</p>
+        <pre>{error.status}</pre>
+        <pre>{error.statusText}</pre>
+      </div>
+    );
   }
-  return <div />;
+  return (
+    <div>
+      <h1>Unknown Error</h1>
+    </div>
+  );
 }

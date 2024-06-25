@@ -1,9 +1,5 @@
 import { db } from "~/db/config.server"; // Adjust the import according to your db setup
 import { sets, activities, workouts } from "~/db/schema.server"; // Adjust the import according to your schema file
-import { config } from "dotenv";
-
-// Load environment variables
-config();
 
 async function deleteAllRecords() {
   try {
