@@ -1,133 +1,9 @@
 {
-  "id": "679a5796-05b9-497c-a44f-1a637d0bd758",
+  "id": "78531376-c325-4783-a597-40eb4ad262bd",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.aleni_activity": {
-      "name": "aleni_activity",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "workout_id": {
-          "name": "workout_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(256)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "order": {
-          "name": "order",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {
-        "workout_id_idx": {
-          "name": "workout_id_idx",
-          "columns": [
-            {
-              "expression": "workout_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "aleni_activity_workout_id_aleni_workout_id_fk": {
-          "name": "aleni_activity_workout_id_aleni_workout_id_fk",
-          "tableFrom": "aleni_activity",
-          "tableTo": "aleni_workout",
-          "columnsFrom": [
-            "workout_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.aleni_set": {
-      "name": "aleni_set",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "activity_id": {
-          "name": "activity_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "reps": {
-          "name": "reps",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "duration": {
-          "name": "duration",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "weight": {
-          "name": "weight",
-          "type": "numeric(10, 2)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "order": {
-          "name": "order",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "aleni_set_activity_id_aleni_activity_id_fk": {
-          "name": "aleni_set_activity_id_aleni_activity_id_fk",
-          "tableFrom": "aleni_set",
-          "tableTo": "aleni_activity",
-          "columnsFrom": [
-            "activity_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
     "public.aleni_user": {
       "name": "aleni_user",
       "schema": "",
@@ -193,8 +69,8 @@
         }
       }
     },
-    "public.aleni_workout": {
-      "name": "aleni_workout",
+    "public.aleni_workouts": {
+      "name": "aleni_workouts",
       "schema": "",
       "columns": {
         "id": {
@@ -202,6 +78,12 @@
           "type": "text",
           "primaryKey": true,
           "notNull": true
+        },
+        "activities": {
+          "name": "activities",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false
         },
         "user_id": {
           "name": "user_id",
@@ -227,6 +109,12 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {
@@ -247,9 +135,9 @@
         }
       },
       "foreignKeys": {
-        "aleni_workout_user_id_aleni_user_id_fk": {
-          "name": "aleni_workout_user_id_aleni_user_id_fk",
-          "tableFrom": "aleni_workout",
+        "aleni_workouts_user_id_aleni_user_id_fk": {
+          "name": "aleni_workouts_user_id_aleni_user_id_fk",
+          "tableFrom": "aleni_workouts",
           "tableTo": "aleni_user",
           "columnsFrom": [
             "user_id"

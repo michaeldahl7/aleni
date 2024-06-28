@@ -1,14 +1,14 @@
 import { GeneralErrorBoundary } from "~/components/ErrorBoundary";
 import { WorkoutEditor } from "~/routes/__workout-editor";
 import { authenticator } from "~/utils/auth.server";
-import { UserSelect } from "~/db/schema.server";
+import { GetUser } from "~/db/schema.server";
 
 import { unstable_defineLoader as defineLoader } from "@remix-run/node";
 export { action } from "~/utils/__workout-editor.server";
 import { useLoaderData } from "@remix-run/react";
 
 export const loader = defineLoader(async ({ request }) => {
-  const user: UserSelect = await authenticator.isAuthenticated(request, {
+  const user: GetUser = await authenticator.isAuthenticated(request, {
     failureRedirect: "/login",
   });
 
@@ -24,14 +24,13 @@ export default function WorkoutNew() {
       {
         name: "",
         sets: [
-          { reps: null, weight: "" },
-          { reps: null, weight: "" },
-          { reps: null, weight: "" },
+          { reps: null, weight: null },
+          { reps: null, weight: null },
+          { reps: null, weight: null },
         ],
       },
     ],
   };
-  //   const { user } = useLoaderData<typeof loader>();
   return <WorkoutEditor workout={emptyWorkout} userId={user.id} />;
 }
 

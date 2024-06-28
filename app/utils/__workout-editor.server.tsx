@@ -7,6 +7,9 @@ import {
 import { authenticator } from "~/utils/auth.server";
 import { workoutSchema } from "~/routes/__workout-editor";
 import { parseWithZod } from "@conform-to/zod";
+import type {
+	NewWorkout
+  } from "~/db/schema.server";
 
 export const action = defineAction(async ({ request }) => {
   const user = await authenticator.isAuthenticated(request, {
@@ -18,13 +21,18 @@ export const action = defineAction(async ({ request }) => {
   if (submission.status !== "success") {
     return json(submission.reply());
   }
-  let workout;
+  let workoutId ="";
+
   try {
-    workout = await createWorkout(
-      submission.value.userId,
-      submission.value.activities,
-      submission.value.title
+	let newWorkout: NewWorkout = {} as NewWorkout;
+	newWorkout.userId = submission.value.userId;
+	newWorkout.title = submission.value.title;
+	newWorkout.activities = submission.value.activities;
+
+    const result = await createWorkout(newWorkout
     );
+
+	workoutId = result[0].workoutId;
   } catch (error) {
     return json(
       submission.reply({
@@ -33,5 +41,5 @@ export const action = defineAction(async ({ request }) => {
     );
   }
 
-  throw redirect(`/${user.username}/workouts/${workout.id}`);
+  throw redirect(`/${user.username}/workouts/${workoutId}`);
 });

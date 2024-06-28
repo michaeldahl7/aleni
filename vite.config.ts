@@ -6,9 +6,7 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
   plugins: [
-    remixDevTools({
-      pluginDir: "./plugins",
-    }),
+    remixDevTools(),
     remix({
       future: {
         v3_fetcherPersist: true,

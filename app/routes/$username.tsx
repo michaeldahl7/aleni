@@ -58,14 +58,8 @@ export default function UsernameRoute() {
               className="flex items-center gap-2 text-lg font-semibold md:text-base"
             >
               <Home className="h-6 w-6" />
-              <span className="sr-only">Acme Inc</span>
+              <span className="sr-only">Aleni</span>
             </Link>
-            {/* <Link
-              to="/"
-              className="text-foreground transition-colors hover:text-foreground"
-            >
-              Workouts
-            </Link> */}
           </nav>
           <Sheet>
             <SheetTrigger asChild>
@@ -112,8 +106,6 @@ export default function UsernameRoute() {
 }
 
 function UserDropdown(username: string) {
-  //   const username = requireUsername();
-  //   const username = "dahl";
   const submit = useSubmit();
   const formRef = useRef<HTMLFormElement>(null);
   return (

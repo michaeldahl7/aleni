@@ -24,7 +24,6 @@ import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import {
   Form,
   useActionData,
-  useNavigate,
   useNavigation,
 } from "@remix-run/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
@@ -35,7 +34,7 @@ import { GeneralErrorBoundary } from "~/components/ErrorBoundary";
 
 const setSchema = z.object({
   reps: z.number({ required_error: "Reps are required" }).min(1),
-  weight: z.string().optional(),
+  weight: z.number().optional(),
 });
 
 const activitySchema = z.object({
@@ -61,7 +60,7 @@ export type Workout = {
     name: string;
     sets: {
       reps: number | null;
-      weight: string | null;
+      weight: number | null;
     }[];
   }[];
 };
@@ -69,9 +68,9 @@ export type Workout = {
 export const createEmptyActivity = () => ({
   name: "",
   sets: [
-    { reps: "", weight: "" },
-    { reps: "", weight: "" },
-    { reps: "", weight: "" },
+    { reps: null, weight: null },
+    { reps: null, weight: null },
+    { reps: null, weight: null },
   ],
 });
 
@@ -82,7 +81,7 @@ export function WorkoutEditor({
   workout?: Workout;
   userId: string;
 }) {
-  const navigate = useNavigate();
+
   const navigation = useNavigation();
   const isCreating = navigation.state === "submitting";
   const lastResult = useActionData<typeof action>();
@@ -279,6 +278,7 @@ export function WorkoutEditor({
               <Button variant="outline" {...form.reset.getButtonProps()}>
                 Clear
               </Button>
+			  <input type="hidden" name="intent" value="create" />
               <Button
                 type="submit"
                 disabled={navigation.state === "submitting"}

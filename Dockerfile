@@ -58,11 +58,4 @@ COPY . .
 COPY --from=build /app/drizzle.config.ts /app/drizzle.config.ts
 COPY --from=build /app/drizzle /app/drizzle
 
-# Ensure the start.sh script has executable permissions
-
-# RUN chmod +x /app/start.sh
-# RUN chmod +x /app/start.sh
-RUN ls -la /app
-RUN ls -la ./
-
 CMD [ "pnpm", "run", "start" ]

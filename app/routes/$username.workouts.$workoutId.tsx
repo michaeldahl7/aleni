@@ -1,16 +1,13 @@
-// import { LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { Form, Link, useLoaderData, useNavigate } from "@remix-run/react";
-import { UserSelect } from "~/db/schema.server";
-import { deleteWorkout, getWorkoutById } from "~/db/workout.server";
+import { Form, Link, useLoaderData } from "@remix-run/react";
+import { GetWorkout, NewUser } from "~/db/schema.server";
+import { deleteWorkout, getWorkout } from "~/db/workout.server";
 import { authenticator } from "~/utils/auth.server";
 import invariant from "tiny-invariant";
-// import { TrashIcon, Pencil1Icon } from "@radix-ui/react-icons";
-import { Trash2, SquarePen, Activity } from "lucide-react";
+import { Trash2, SquarePen } from "lucide-react";
 import {
   Card,
   CardHeader,
   CardContent,
-  CardDescription,
   CardFooter,
   CardTitle,
 } from "~/components/ui/card";
@@ -20,8 +17,9 @@ import {
   unstable_defineAction as defineAction,
   redirect,
 } from "@remix-run/node";
+
 import { Button } from "~/components/ui/button";
-import { Car } from "lucide-react";
+
 import {
   Table,
   TableBody,
@@ -30,22 +28,21 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import { AlertDialog, AlertDialogHeader } from "~/components/ui/alert-dialog";
-import { AlertDialogContent } from "@radix-ui/react-alert-dialog";
+
 
 export const loader = defineLoader(async ({ request, params }) => {
-  const user: UserSelect = await authenticator.isAuthenticated(request, {
+  const user: NewUser = await authenticator.isAuthenticated(request, {
     failureRedirect: "/login",
   });
   invariant(params.workoutId, "Workout ID is required");
-  const workout = await getWorkoutById(params.workoutId);
+  const workout: GetWorkout = await getWorkout(params.workoutId);
   invariant(workout, "Workout is required");
 
   return { workout, user };
 });
 
 export const action = defineAction(async ({ request, params }) => {
-  const user: UserSelect = await authenticator.isAuthenticated(request, {
+  const user: NewUser = await authenticator.isAuthenticated(request, {
     failureRedirect: "/login",
   });
   invariant(params.workoutId, "Workout ID is required");
@@ -55,7 +52,6 @@ export const action = defineAction(async ({ request, params }) => {
 
 export default function WorkoutRoute() {
   const { workout } = useLoaderData<typeof loader>();
-  const navigate = useNavigate();
 
   return (
     <div className=" flex px-8 justify-center">
