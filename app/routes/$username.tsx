@@ -1,17 +1,9 @@
 import {
-  TooltipProvider,
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-} from "@/components/ui/tooltip";
-import {
   Form,
   Link,
   Outlet,
-  isRouteErrorResponse,
   redirect,
   useLoaderData,
-  useRouteError,
   useSubmit,
 } from "@remix-run/react";
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
@@ -33,11 +25,16 @@ import { requireUser } from "~/utils/require-user.server";
 import { ModeToggle } from "~/components/ModeToggle";
 import { useRef } from "react";
 import invariant from "tiny-invariant";
+import Logo from "~/components/Logo";
 
 export const loader = defineLoader(async ({ params, request }) => {
   const user = await requireUser(request);
   const { username } = params;
   if (user && user.username !== username) {
+    console.log("$username.tsx user", user);
+    console.log("$username.tsx username", username);
+    console.log("$username.tsx user.username", user.username);
+    console.log("user not found redirecting");
     throw redirect("/");
   }
 
@@ -56,6 +53,7 @@ export default function UsernameRoute() {
             <Link
               to="/"
               className="flex items-center gap-2 text-lg font-semibold md:text-base"
+              prefetch="intent"
             >
               <Home className="h-6 w-6" />
               <span className="sr-only">Aleni</span>
@@ -72,14 +70,17 @@ export default function UsernameRoute() {
               <nav className="grid gap-6 text-lg font-medium">
                 <Link
                   to="/"
-                  className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
+                  className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full text-lg font-semibold text-primary-foreground md:text-base"
                 >
-                  <Dumbbell className="h-5 w-5 transition-all group-hover:scale-110" />
+                  {/* <Dumbbell className="h-5 w-5 transition-all group-hover:scale-110" />
+                   */}
+                  <Logo />
                   <span className="sr-only">Aleni</span>
                 </Link>
                 <Link
                   to="/"
                   className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+                  prefetch="intent"
                 >
                   <Home className="h-5 w-5" />
                   Workouts

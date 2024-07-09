@@ -2,6 +2,7 @@ import { Dumbbell } from "lucide-react";
 import { Button } from "./ui/button";
 import { Form } from "@remix-run/react";
 import { Discord, Google } from "./Svg";
+import Logo from "./Logo";
 
 interface SocialButtonProps {
   label: string;
@@ -29,7 +30,8 @@ export default function Login({ title }: LoginProps) {
   return (
     <div className="flex items-center flex-col justify-center">
       <div className="w-80 flex flex-col items-center">
-        <Dumbbell size={48} strokeWidth={1} className="mb-4" />
+        {/* <Dumbbell size={48} strokeWidth={1} className="mb-4" /> */}
+		<Logo />
         <div className="font-semibold text-2xl mb-9">{title}</div>
         <div className="flex flex-col items-center w-full gap-3 text-sm">
           <SocialButton provider="google" label="Continue with Google" />

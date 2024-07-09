@@ -15,6 +15,7 @@ import {
 import invariant from "tiny-invariant";
 
 export const loader = defineLoader(async ({ request }) => {
+  console.log("loader ran");
   const user = await requireUser(request);
   const username = await requireUsername(request);
   const workouts = await getWorkouts(user.id);

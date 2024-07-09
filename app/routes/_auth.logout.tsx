@@ -4,6 +4,7 @@ import {
   unstable_defineAction as defineAction,
   redirect,
 } from "@remix-run/node";
+import { GeneralErrorBoundary } from "~/components/ErrorBoundary";
 
 export async function loader() {
   return redirect("/");
@@ -14,9 +15,5 @@ export const action = defineAction(async ({ request }) => {
 });
 
 export function ErrorBoundary() {
-  const error = useRouteError();
-  if (isRouteErrorResponse(error)) {
-    return <div>hello {error.data}</div>;
-  }
-  return <div>Unknown error</div>;
+  return <GeneralErrorBoundary />;
 }

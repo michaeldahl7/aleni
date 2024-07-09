@@ -106,7 +106,7 @@ export default function WorkoutRoute() {
             </Button>
           </Form>
           <Button variant="default" asChild>
-            <Link to="edit" className="flex gap-2">
+            <Link to="edit" className="flex gap-2" prefetch="intent">
               <SquarePen />
               Edit
             </Link>

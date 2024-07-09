@@ -24,9 +24,10 @@
     --input: 240 5.9% 90%;
     --ring: 240 5.9% 10%;
     --radius: 0.5rem;
+    --svg-fill-color: black;
   }
 
-  .dark,
+  /* .dark,
   :root[class~="dark"] {
     --background: 240 5% 6%;
     --foreground: 60 5% 90%;
@@ -47,9 +48,10 @@
     --border: 240 6% 20%;
     --input: 240 6% 20%;
     --ring: 240 5% 90%;
-  }
+	--svg-fill-color: white;
+  } */
 
-  /* .dark,
+  .dark,
   :root[class~="dark"] {
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
@@ -70,7 +72,8 @@
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
-  } */
+    --svg-fill-color: white;
+  }
 }
 
 @layer base {

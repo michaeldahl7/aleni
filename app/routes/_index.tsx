@@ -24,6 +24,7 @@ import { createUsername, isUsernameTaken } from "~/db/user.server";
 import { UsernameSchema } from "~/utils/user-validation";
 import { useEffect } from "react";
 import posthog from "posthog-js";
+import Logo from "~/components/Logo";
 
 const CreateUsernameSchema = z.object({
   username: UsernameSchema,
@@ -32,99 +33,15 @@ const CreateUsernameSchema = z.object({
   }),
 });
 
-// const submission = await parseWithZod(formData, {
-// 	schema: SignupFormSchema.superRefine(async (data, ctx) => {
-// 		const existingUser = await prisma.user.findUnique({
-// 			where: { username: data.username },
-// 			select: { id: true },
-// 		})
-// 		if (existingUser) {
-// 			ctx.addIssue({
-// 				path: ['username'],
-// 				code: z.ZodIssueCode.custom,
-// 				message: 'A user already exists with this username',
-// 			})
-// 			return
-// 		}
-// 	}).transform(async (data) => {
-// 		const session = await signupWithConnection({
-// 			...data,
-// 			email,
-// 			providerId,
-// 			providerName,
-// 		})
-// 		return { ...data, session }
-// 	}),
-// 	async: true,
-// })
-
-// const submission = await parseWithZod(formData, {
-// 	schema: SignupSchema.superRefine(async (data, ctx) => {
-// const existingUsername = await isUsernameTaken(username);
-
-// 		if (existingUsername) {
-// 			ctx.addIssue({
-// 				path: ['email'],
-// 				code: z.ZodIssueCode.custom,
-// 				message: 'A user already exists with this email',
-// 			})
-// 			return
-// 		}
-// 	}),
-// 	async: true,
-// })
-
-// function createSchema(options?: {
-//   isUsernameUnique: (username: string) => Promise<boolean>;
-// }) {
-//   return z.object({
-//     username: z
-//       .string()
-//       .min(3, "Username must be at least 3 characters long")
-//       .pipe(
-//         z.string().superRefine((username, ctx) => {
-//           if (typeof options?.isUsernameUnique !== "function") {
-//             ctx.addIssue({
-//               code: "custom",
-//               message: conformZodMessage.VALIDATION_UNDEFINED,
-//               fatal: true,
-//             });
-//             return;
-//           }
-
-//           return options.isUsernameUnique(username).then((isUnique) => {
-//             if (!isUnique) {
-//               ctx.addIssue({
-//                 code: "custom",
-//                 message: "Username is already taken",
-//               });
-//             }
-//           });
-//         })
-//       ),
-//     agreeToTermsOfServiceAndPrivacyPolicy: z.boolean({
-//       required_error:
-//         "You must agree to the terms of service and privacy policy",
-//     }),
-//   });
-// }
-
 export const loader = defineLoader(async ({ request }) => {
   const user = await authenticator.isAuthenticated(request);
   if (user && user.username) {
+    console.log("user found redirecting");
+    console.log("user", user);
+    console.log("user.username", user.username);
     throw redirect(`/${user.username}/home`);
   }
   return { user };
-  //   let session = await getSession(request.headers.get("cookie"));
-  //   let error = session.get(authenticator.sessionErrorKey);
-  //   return json(
-  //     { error, user },
-  //     {
-  //       headers: {
-  //         "Set-Cookie": await commitSession(session), // You must commit the session whenever you read a flash
-  //       },
-  //     }
-  //   );
 });
 
 export const action = defineAction(async ({ request }) => {
@@ -150,15 +67,6 @@ export const action = defineAction(async ({ request }) => {
     async: true,
   });
   console.log("submission done");
-  //   const submission = await parseWithZod(formData, {
-  //     schema: createSchema({
-  //       async isUsernameUnique(username) {
-  //         const user = await isUsernameTaken(username);
-  //         return !user;
-  //       },
-  //     }),
-
-  //   });
 
   if (submission.status !== "success") {
     return json(
@@ -197,7 +105,6 @@ export const meta: MetaFunction = () => {
 
 export default function IndexRoute() {
   const { user } = useLoaderData<typeof loader>();
-  const data = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   useEffect(() => {
     if (user) {
@@ -209,7 +116,6 @@ export default function IndexRoute() {
       }
     }
   }, [user]);
-  const lastResult = useActionData<typeof action>();
   const [form, fields] = useForm({
     id: "login-form",
     constraint: getZodConstraint(CreateUsernameSchema),
@@ -227,7 +133,8 @@ export default function IndexRoute() {
   return (
     <div className="flex items-center flex-col justify-center h-screen">
       <div className="w-80 h-[20rem] flex flex-col items-center">
-        <Dumbbell size={48} strokeWidth={1} className="mb-4" />
+        <Logo />
+        {/* <Dumbbell size={48} strokeWidth={1} className="mb-4" /> */}
         <div className="font-semibold text-2xl mb-9">Welcome to Aleni</div>
         {!user ? (
           <div className="flex flex-col items-center w-full gap-3 text-sm">

@@ -78,11 +78,12 @@ export function Workouts({
               </CardDescription>
             </div>
             <Button asChild className="ml-auto gap-2">
-              <Link to={`/${username}/workouts/new`}>
+              <Link to={`/${username}/workouts/new`} prefetch="intent">
                 <CirclePlusIcon />
                 <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
                   Workout
                 </span>
+
               </Link>
             </Button>
           </CardHeader>
@@ -132,6 +133,7 @@ export function Workouts({
                                 >
                                   <Link
                                     to={`/${username}/workouts/${workout.id}`}
+									prefetch="intent"
                                   >
                                     View
                                   </Link>
@@ -146,14 +148,14 @@ export function Workouts({
                                 >
                                   <Link
                                     to={`/${username}/workouts/${workout.id}/edit`}
-                                    className=""
+									prefetch="intent"
                                   >
                                     Edit
                                   </Link>
                                 </Button>
                               </DropdownMenuItem>
                               <DropdownMenuItem
-                                // className="flex-grow"
+
                                 onSelect={() => handleDeleteClick(workout.id)}
                                 asChild
                               >

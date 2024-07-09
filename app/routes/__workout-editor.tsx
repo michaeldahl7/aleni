@@ -105,7 +105,7 @@ export function WorkoutEditor({
   const activitiesFields = fields.activities.getFieldList();
 
   return (
-    <div className="w-[600px]">
+    <div className="w-[440px]">
       <Form
         method="post"
         {...getFormProps(form)}
@@ -142,13 +142,14 @@ export function WorkoutEditor({
               const activityFields = activity.getFieldset();
               const setsFields = activityFields.sets.getFieldList();
               return (
-                <Card>
+                <Card className="bg-card-card-secondary ">
                   <CardHeader>
                     <CardTitle>
                       <div className="flex justify-between">
                         Activity
                         <Button
                           variant="outline"
+						  disabled = {activitiesFields.length === 1}
                           {...form.remove.getButtonProps({
                             name: fields.activities.name,
                             index: activityIndex,
@@ -230,9 +231,11 @@ export function WorkoutEditor({
                                   size="sm"
                                   variant="ghost"
                                   className="gap-2"
+								  disabled = {setsFields.length === 1}
                                   {...form.remove.getButtonProps({
                                     name: `${fields.activities.name}[${activityIndex}].sets`,
                                     index: setIndex,
+
                                   })}
                                 >
                                   <MinusCircle />
@@ -247,6 +250,7 @@ export function WorkoutEditor({
                       <Button
                         className="gap-2 w-1/2"
                         variant="ghost"
+
                         {...form.insert.getButtonProps({
                           name: `${fields.activities.name}[${activityIndex}].sets`,
                         })}
