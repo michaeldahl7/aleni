@@ -100,7 +100,7 @@ export const action = defineAction(async ({ request }) => {
 });
 
 export const meta: MetaFunction = () => {
-  return [{ title: "Webapp" }, { name: "description", content: "Welcome" }];
+  return [{ title: "Aleni" }, { name: "description", content: "Welcome to Aleni" }];
 };
 
 export default function IndexRoute() {
