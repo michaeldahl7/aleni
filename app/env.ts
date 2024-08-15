@@ -2,10 +2,7 @@
 import { createEnv } from "@t3-oss/env-core";
 import { z } from "zod";
 
-if (process.env.NODE_ENV !== 'production') {
-	const dotenv = await import('dotenv');
-	dotenv.config({ path: '.env.development' });
-  }
+
 
 export const env = createEnv({
   server: {
