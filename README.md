@@ -6,10 +6,8 @@ This is a workout tracker app built with Remix, Tailwind, and Drizzle, a Postgre
 
 - Authentication with Discord and Google
 - Create and manage workouts
-- Track progress and set goals
-- View workouts and their activities
-- View workouts and their sets
-- View workouts and their comments
+- View workouts, their activities, and sets
+
 
 ## Accessing the App via the web
 
@@ -43,10 +41,9 @@ Create a new PostgreSQL database and add the following environment variables:
 
 ```
 DATABASE_URL=""
-PROD_DATABASE_URL=""
 ```
 
-### 2. Setup dependencies
+### Setup dependencies
 
 ```bash
 # Install dependencies
@@ -65,7 +62,8 @@ pnpm db:push
 
 Run the following command to start the development server:
 
-```
+
+```bash
 pnpm run dev
 ```
 
