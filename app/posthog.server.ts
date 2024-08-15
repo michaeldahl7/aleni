@@ -1,14 +1,13 @@
 import { PostHog } from "posthog-node";
-import dotenv from "dotenv";
+import { env } from "./env";
 
-dotenv.config();
 
 let posthogNodeClient: PostHog | null = null;
 
 export default function PostHogNodeClient(): PostHog {
   if (!posthogNodeClient) {
-    posthogNodeClient = new PostHog(process.env.POSTHOG_API_KEY, {
-      host: process.env.POSTHOG_HOST,
+    posthogNodeClient = new PostHog(env.POSTHOG_API_KEY, {
+      host: env.POSTHOG_HOST,
     });
   }
   return posthogNodeClient;

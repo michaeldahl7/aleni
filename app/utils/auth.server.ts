@@ -7,25 +7,23 @@ import {
 } from "remix-auth-socials";
 import { sessionStorage } from "~/utils/session.server";
 import { findOrCreateUserByEmail } from "~/db/user.server";
-import type { UserSelect } from "~/db/schema.server";
+import type { GetUser } from "~/db/schema.server";
 
-import dotenv from "dotenv";
+import { env } from "~/env";
 
-dotenv.config();
-
-export const authenticator = new Authenticator<UserSelect>(sessionStorage, {
+export const authenticator = new Authenticator<GetUser>(sessionStorage, {
   sessionKey: "_session",
 });
 
 const getCallback = (provider: SocialsProvider) => {
-  return `${process.env.URL}/auth/${provider}/callback`;
+  return `${env.HOST_NAME}/auth/${provider}/callback`;
 };
 
 authenticator.use(
   new DiscordStrategy(
     {
-      clientID: process.env.DISCORD_CLIENT_ID ?? "",
-      clientSecret: process.env.DISCORD_CLIENT_SECRET ?? "",
+      clientID: env.DISCORD_CLIENT_ID ?? "",
+      clientSecret: env.DISCORD_CLIENT_SECRET ?? "",
       callbackURL: getCallback(SocialsProvider.DISCORD),
     },
     async ({ profile }) => {
@@ -43,8 +41,8 @@ authenticator.use(
 authenticator.use(
   new GoogleStrategy(
     {
-      clientID: process.env.GOOGLE_CLIENT_ID ?? "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+      clientID: env.GOOGLE_CLIENT_ID ?? "",
+      clientSecret: env.GOOGLE_CLIENT_SECRET ?? "",
       callbackURL: getCallback(SocialsProvider.GOOGLE),
     },
     async ({ profile }) => {

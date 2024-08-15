@@ -1,8 +1,7 @@
 import { createCookieSessionStorage } from "@remix-run/node";
 import { createThemeSessionResolver } from "remix-themes";
-import invariant from "tiny-invariant";
 
-invariant(process.env.SESSION_SECRET, "SESSION_SECRET must be set");
+import { env } from "~/env";
 
 // Create a single session storage
 export const sessionStorage = createCookieSessionStorage({
@@ -11,8 +10,8 @@ export const sessionStorage = createCookieSessionStorage({
     sameSite: "lax", // helps with CSRF
     path: "/", // cookie works for all routes
     httpOnly: true, // security reasons
-    secrets: [process.env.SESSION_SECRET], // actual secret
-    secure: process.env.NODE_ENV === "production", // enable in prod only
+    secrets: [env.SESSION_SECRET], // actual secret
+    secure: env.NODE_ENV === "production", // enable in prod only
   },
 });
 
