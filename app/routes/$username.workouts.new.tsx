@@ -6,11 +6,13 @@ import { GetUser } from "~/db/schema.server";
 import { unstable_defineLoader as defineLoader } from "@remix-run/node";
 export { action } from "~/utils/__workout-editor.server";
 import { useLoaderData } from "@remix-run/react";
+import { requireUser } from "~/utils/require-user.server";
 
 export const loader = defineLoader(async ({ request }) => {
-  const user: GetUser = await authenticator.isAuthenticated(request, {
-    failureRedirect: "/login",
-  });
+	const user = await requireUser(request);
+//   const user: GetUser = await authenticator.isAuthenticated(request, {
+//     failureRedirect: "/login",
+//   });
 
   return user;
 });

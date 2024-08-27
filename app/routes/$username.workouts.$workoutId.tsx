@@ -28,12 +28,11 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
+import { requireUser } from "~/utils/require-user.server";
 
 
 export const loader = defineLoader(async ({ request, params }) => {
-  const user: NewUser = await authenticator.isAuthenticated(request, {
-    failureRedirect: "/login",
-  });
+  const user: NewUser = await requireUser(request);
   invariant(params.workoutId, "Workout ID is required");
   const workout: GetWorkout = await getWorkout(params.workoutId);
   invariant(workout, "Workout is required");
@@ -42,9 +41,7 @@ export const loader = defineLoader(async ({ request, params }) => {
 });
 
 export const action = defineAction(async ({ request, params }) => {
-  const user: NewUser = await authenticator.isAuthenticated(request, {
-    failureRedirect: "/login",
-  });
+  const user: NewUser = await requireUser(request);
   invariant(params.workoutId, "Workout ID is required");
   await deleteWorkout(params.workoutId);
   throw redirect(`/${user.username}/home`);

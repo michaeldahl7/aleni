@@ -9,6 +9,7 @@ import type {
 	NewWorkout, GetWorkout
   } from "~/db/schema.server";
 import { createWorkout, deleteWorkout } from "~/db/workout.server";
+import { requireUser } from "~/utils/require-user.server";
 
   const setSchema = z.object({
 	reps: z.number({ required_error: "Reps are required" }).min(1),
@@ -53,9 +54,7 @@ const WorkoutUpdateSchema = z.discriminatedUnion("intent", [
 
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-	await authenticator.isAuthenticated(request, {
-		failureRedirect: "/login",
-	  });
+	const user = await requireUser(request);
   const formData = await request.formData();
   const submission = parseWithZod(formData, {
     schema: WorkoutUpdateSchema,

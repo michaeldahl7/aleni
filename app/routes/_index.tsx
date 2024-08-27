@@ -25,6 +25,8 @@ import { UsernameSchema } from "~/utils/user-validation";
 import { useEffect } from "react";
 import posthog from "posthog-js";
 import Logo from "~/components/Logo";
+import { requireUser } from "~/utils/require-user.server";
+import { Separator } from "~/components/ui/separator";
 
 const CreateUsernameSchema = z.object({
   username: UsernameSchema,
@@ -34,24 +36,22 @@ const CreateUsernameSchema = z.object({
 });
 
 export const loader = defineLoader(async ({ request }) => {
-  const user = await authenticator.isAuthenticated(request);
+	const user = await authenticator.isAuthenticated(request);
+	// const user = await requireUser(request);
   if (user && user.username) {
-    console.log("user found redirecting");
-    console.log("user", user);
-    console.log("user.username", user.username);
     throw redirect(`/${user.username}/home`);
   }
   return { user };
 });
 
 export const action = defineAction(async ({ request }) => {
-  const user = await authenticator.isAuthenticated(request);
+
+  const user = await requireUser(request);
 
   invariant(user, "User not found");
 
   const formData = await request.formData();
 
-  console.log("doing submissions");
   const submission = await parseWithZod(formData, {
     schema: CreateUsernameSchema.superRefine(async (data, ctx) => {
       const existingUsername = await isUsernameTaken(data.username);
@@ -144,7 +144,10 @@ export default function IndexRoute() {
             <Button className="w-2/4" asChild>
               <Link to="/signup">Signup</Link>
             </Button>
-
+			<Separator></Separator>
+			<Form action="/auth/tryout" method="post">
+        		<Button variant="secondary">Try without signup</Button>
+      		</Form>
             {/* {error && <div className="text-destructive">{error.message}</div>} */}
           </div>
         ) : (

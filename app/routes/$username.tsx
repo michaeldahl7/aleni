@@ -28,13 +28,24 @@ import invariant from "tiny-invariant";
 import Logo from "~/components/Logo";
 
 export const loader = defineLoader(async ({ params, request }) => {
-  const user = await requireUser(request);
-  const { username } = params;
+	let user;
+	if (params.username === "tryout") {
+		 user = {
+			id: "tryout",
+			username: "tryout",
+			email: "tryout@tryout.com",
+			createdAt: new Date(),
+			updatedAt: new Date(),
+
+		}
+
+	}
+	else {
+		user = await requireUser(request);
+	}
+
+  const  username  = params.username;
   if (user && user.username !== username) {
-    console.log("$username.tsx user", user);
-    console.log("$username.tsx username", username);
-    console.log("$username.tsx user.username", user.username);
-    console.log("user not found redirecting");
     throw redirect("/");
   }
 
@@ -106,7 +117,7 @@ export default function UsernameRoute() {
   );
 }
 
-function UserDropdown(username: string) {
+function UserDropdown({ username }: { username: string }) {
   const submit = useSubmit();
   const formRef = useRef<HTMLFormElement>(null);
   return (
